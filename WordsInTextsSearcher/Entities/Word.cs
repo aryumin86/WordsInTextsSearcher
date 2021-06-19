@@ -10,6 +10,7 @@ namespace WordsInTextsSearcher.Entities
         public int Id { get; set; }
         public DateTime WhenCreated { get; set; }
         public string Text { get; set; }
+        public IEnumerable<WordForm> WordForms { get; set; }
 
     }
 }

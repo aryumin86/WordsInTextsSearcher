@@ -1,7 +1,59 @@
 ﻿@page "/wordslist"
+@using WordsInTextsSearcher.Data
+@using WordsInTextsSearcher.Entities
+@inject WordsService wordsService
+@inject WordFormsService wordFormsService
 
 <h3>Слова</h3>
 
+<div class="row">
+    <div class="col col-6">
+        <div class="input-group">
+            <input type="text" @bind="currentWord.Text" />
+        </div>
+    </div>
+</div>
+
+
 @code {
 
+    [Inject]
+    private WordsInTextsSearcher.Data.WordsService _wordsService { get; set; }
+    [Inject]
+    private WordFormsService _wordFormsService { get; set; }
+
+    private Word currentWord = new Word();
+    private WordForm currentWordForm = new WordForm();
+    private IEnumerable<Word> allWords ;
+
+    protected override async Task OnInitializedAsync()
+    {
+        allWords = await wordsService.GetWords(x => true);
+    }
+
+    private async Task ClearForm()
+    {
+        await Task.CompletedTask;
+        currentWord = new Word();
+    }
+
+    private async Task CreateWord()
+    {
+        await _wordsService.CreateWord(currentWord);
+    }
+
+    private async Task DeleteWord(int id)
+    {
+        await _wordsService.DeleteWord(id);
+    }
+
+    private async Task UpdateWord()
+    {
+        await _wordsService.UpdateWord(currentWord);
+    }
+
+    private async Task CreateWordForm()
+    {
+        await _wordFormsService.CreateWordForm(currentWordForm);
+    }
 }

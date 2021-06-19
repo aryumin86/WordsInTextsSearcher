@@ -16,27 +16,33 @@ namespace WordsInTextsSearcher.Repos
         }
         public Word CreateWord(Word word)
         {
-            throw new NotImplementedException();
+            _dbContext.Words.Add(word);
+            _dbContext.SaveChanges();
+            return word;
         }
 
         public void DeleteWord(int id)
         {
-            throw new NotImplementedException();
+            var word = _dbContext.Words.Find(id);
+            _dbContext.Remove(word);
+            _dbContext.SaveChanges();
         }
 
         public Word GetWord(int id)
         {
-            throw new NotImplementedException();
+            return _dbContext.Words.Find(id);
         }
 
         public IEnumerable<Word> GetWords(Expression<Func<Word, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return _dbContext.Words.Where(predicate);
         }
 
         public Word UpdateWord(Word word)
         {
-            throw new NotImplementedException();
+            _dbContext.Words.Update(word);
+            _dbContext.SaveChanges();
+            return word;
         }
     }
 }

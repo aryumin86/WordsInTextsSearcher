@@ -10,34 +10,43 @@ namespace WordsInTextsSearcher.Repos
     public class WordFormsRepo : IWordFormsRepo
     {
         private SearcherDbContext _dbContext;
+        private AppConf _appConf;
 
-        public WordFormsRepo(SearcherDbContext dbContext)
+        public WordFormsRepo(SearcherDbContext dbContext, AppConf appConf)
         {
             _dbContext = dbContext;
+            _appConf = appConf;
         }
         public WordForm CreateWordForm(WordForm wordForm)
         {
-            throw new NotImplementedException();
+            _dbContext.WordForms.Add(wordForm);
+            _dbContext.SaveChanges();
+            return wordForm;
         }
 
         public void DeleteWordForm(int id)
         {
-            throw new NotImplementedException();
+            using var ctx = new SearcherDbContext(_appConf.MainDbConnString);
+            var wordForm = ctx.WordForms.Find(id);
+            ctx.Remove(wordForm);
+            ctx.SaveChanges();
         }
 
         public WordForm GetWordForm(int wordFormId)
         {
-            throw new NotImplementedException();
+            return _dbContext.WordForms.Find(wordFormId);
         }
 
         public IEnumerable<WordForm> GetWordForms(Expression<Func<WordForm, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return _dbContext.WordForms.Where(predicate);
         }
 
         public WordForm UpdateWordForm(WordForm wordForm)
         {
-            throw new NotImplementedException();
+            _dbContext.WordForms.Update(wordForm);
+            _dbContext.SaveChanges();
+            return wordForm;
         }
     }
 }

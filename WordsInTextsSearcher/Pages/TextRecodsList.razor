@@ -28,7 +28,8 @@
         <button class="btn btn-outline-warning mb-1" 
                 @onclick="@(async () => await ClearForm())">Очистить</button>
         <button class="btn btn-outline-primary mb-1">Импорт</button>
-        <button class="btn btn-outline-primary mb-1">Экспорт</button>
+        <button class="btn btn-outline-primary mb-3">Экспорт</button>
+        <strong>Всего текстов: @textRecords.Count()</strong>
     </div>
 </div>
 <div class="row" hidden="@hideTextRecordsTable()">
