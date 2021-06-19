@@ -1,0 +1,11 @@
+﻿table tr th:nth-child(2) {
+    width: 70%;
+}
+
+.textRecordTitleTd:hover{
+    cursor:pointer;
+}
+
+tr:hover {
+    background-color: aliceblue;
+}
