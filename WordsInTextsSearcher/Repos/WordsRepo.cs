@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -35,7 +36,7 @@ namespace WordsInTextsSearcher.Repos
 
         public IEnumerable<Word> GetWords(Expression<Func<Word, bool>> predicate)
         {
-            return _dbContext.Words.Where(predicate);
+            return _dbContext.Words.Include(w => w.WordForms).Where(predicate);
         }
 
         public Word UpdateWord(Word word)

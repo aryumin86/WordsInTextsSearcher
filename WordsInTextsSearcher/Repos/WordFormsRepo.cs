@@ -19,6 +19,7 @@ namespace WordsInTextsSearcher.Repos
         }
         public WordForm CreateWordForm(WordForm wordForm)
         {
+            //using var ctx = new SearcherDbContext(_appConf.MainDbConnString);
             _dbContext.WordForms.Add(wordForm);
             _dbContext.SaveChanges();
             return wordForm;
@@ -26,10 +27,10 @@ namespace WordsInTextsSearcher.Repos
 
         public void DeleteWordForm(int id)
         {
-            using var ctx = new SearcherDbContext(_appConf.MainDbConnString);
-            var wordForm = ctx.WordForms.Find(id);
-            ctx.Remove(wordForm);
-            ctx.SaveChanges();
+            //using var ctx = new SearcherDbContext(_appConf.MainDbConnString);
+            var wordForm = _dbContext.WordForms.Find(id);
+            _dbContext.Remove(wordForm);
+            _dbContext.SaveChanges();
         }
 
         public WordForm GetWordForm(int wordFormId)

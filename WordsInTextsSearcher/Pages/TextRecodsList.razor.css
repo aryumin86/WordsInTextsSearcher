@@ -1,5 +1,5 @@
 ﻿table tr th:nth-child(2) {
-    width: 70%;
+    width: 90%;
 }
 
 .textRecordTitleTd:hover{
@@ -7,5 +7,9 @@
 }
 
 tr:hover {
+    background-color: aliceblue;
+}
+
+.active-row {
     background-color: aliceblue;
 }

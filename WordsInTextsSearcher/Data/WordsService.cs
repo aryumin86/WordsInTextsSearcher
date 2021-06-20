@@ -11,9 +11,11 @@ namespace WordsInTextsSearcher.Data
     public class WordsService
     {
         private IWordsRepo _wordsRepo;
-        public WordsService(IWordsRepo wordsRepo)
+        private IWordFormsRepo _wordFormsRepo;
+        public WordsService(IWordsRepo wordsRepo, IWordFormsRepo wordFormsRepo)
         {
             _wordsRepo = wordsRepo;
+            _wordFormsRepo = wordFormsRepo;
         }
         public async Task<IEnumerable<Word>> GetWords(Expression<Func<Word, bool>> predicate)
         {
@@ -22,7 +24,19 @@ namespace WordsInTextsSearcher.Data
 
         public async Task<Word> CreateWord(Word word)
         {
-            return await Task.FromResult(_wordsRepo.CreateWord(word));
+            _wordsRepo.CreateWord(word);
+
+            var defaultWordForm = new WordForm
+            {
+                WhenCreated = DateTime.Now,
+                Text = word.Text,
+                WordId = word.Id,
+                Word = word
+            };
+            word.WordForms = new List<WordForm> { defaultWordForm };
+            _wordFormsRepo.CreateWordForm(defaultWordForm);
+
+            return await Task.FromResult(word);
         }
 
         public async Task<Word> UpdateWord(Word word)

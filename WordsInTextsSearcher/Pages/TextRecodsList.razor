@@ -42,17 +42,13 @@
         </tr>
         @foreach (var textRecord in textRecords)
         {
-            <tr>
+            <tr class="@(textRecord.Id == currentTextRecord.Id ? "active-row" : "")">
                 <th scope="row">@textRecord.Id</th>
                 <td class="textRecordTitleTd" 
                     @onclick="@(async() => await SetTextRecordAsCurrent(textRecord))">@textRecord.Title</td>
                 <td>@textRecord.WhenCreated</td>
                 <td>
                     <div class="d-flex flex-row">
-                        <button class="btn btn-outline-primary mr-1"
-                                @onclick="@(async() => await SetTextRecordAsCurrent(textRecord))">
-                            Редактировать
-                        </button>
                         <button @onclick="@(async() => await DeleteTextRecord(textRecord.Id))"
                                 class="btn btn-outline-danger">
                             Удалить
