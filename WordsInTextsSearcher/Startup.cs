@@ -51,10 +51,10 @@ namespace WordsInTextsSearcher
 
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
             services.AddScoped<TextRecordsService>();
             services.AddScoped<WordsService>();
             services.AddScoped<WordFormsService>();
+            services.AddScoped<StatsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

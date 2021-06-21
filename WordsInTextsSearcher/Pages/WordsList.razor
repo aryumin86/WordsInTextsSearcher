@@ -11,7 +11,8 @@
         <h3>Слова</h3>
         <div class="input-group">
             <div class="input-group-prepend">
-                <button class="btn btn-outline-primary" @onclick="@(async () => await CreateWord())">@getCreateUpdateWordButtonText()</button>
+                <button class="btn btn-outline-primary"
+                        @onclick="@(async () => await CreateWord())">@getCreateUpdateWordButtonText()</button>
             </div>
             <input type="text" class="form-control" @bind="currentWord.Text" />
             <button class="btn btn-outline-warning ml-1" @onclick="ClearWordForm">очистить</button>

@@ -1,32 +1,79 @@
 ﻿@page "/stats"
 
+@using WordsInTextsSearcher.Data
+@using WordsInTextsSearcher.Entities
+
 <h3>Статистика</h3>
 <div class="row">
     <div class="col col-12">
-        <button class="btn btn-outline-primary mr-1" 
-                @onclick="@(async() => await exportXLSXTermTextMatrix())"
-                >Экспорт term-text матрицы</button>
-        <button class="btn btn-outline-primary" 
-                @onclick="@(async() => await showTermTextMatrix())"
-                >Показать term-text матрицу</button>
+        <button class="btn btn-outline-primary mr-1"
+                @onclick="@(async() => await exportXLSXTermTextMatrix())">
+            Экспорт term-text матрицы
+        </button>
+        <button class="btn btn-outline-primary"
+                @onclick="@(async() => await showTermTextMatrix())">
+            Показать term-text матрицу
+        </button>
     </div>
 </div>
 
 <div class="text-center" hidden="@(!showSpinner)">
-    <div class="spinner-border text-primary" role="status" 
+    <div class="spinner-border text-primary" role="status"
          style="width: 6rem; height: 6rem; margin-top: 6rem;">
         <span class="sr-only">Делаем...</span>
     </div>
 </div>
-    
+
+@if (_termsStats != null && _termsStats.Any())
+{
+    <table class="table table-striped">
+        <tr>
+            <th scope="col">Название текста</th>
+            @foreach (var word in _termsStats.First().WordsCount)
+            {
+                <th>@_wordsNames[@word.Key]</th>
+            }
+        </tr>
+        @foreach (var termTextStat in _termsStats)
+        {
+            <tr>
+                <td>
+                    @termTextStat.TextRecord.Title
+                </td>
+                @foreach (var word in termTextStat.WordsCount)
+                {
+                    <td>@word.Value</td>
+                }
+            </tr>
+        }
+    </table>
+}
 
 
 @code {
+
+    [Inject]
+    private TextRecordsService _recordsService { get; set; }
+    [Inject]
+    private WordsService _wordsService { get; set; }
+    [Inject]
+    private StatsService _statsService { get; set; }
+    [Inject]
+    private NavigationManager _navManager { get; set; }
+    [Inject]
+    private IJSRuntime _js { get; set; }
+
     private bool showSpinner = false;
+    private IEnumerable<TextTermsStat> _termsStats;
+    private Dictionary<int, string> _wordsNames;
 
     private async Task exportXLSXTermTextMatrix()
     {
         showSpinner = true;
+        var text = "Hello, world!";
+        var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+        await WordsInTextsSearcher.Helpers.FileUtil.SaveAs(_js, "HelloWorld.txt", bytes);
+
         await Task.Delay(TimeSpan.FromSeconds(2));
         showSpinner = false;
     }
@@ -34,7 +81,20 @@
     private async Task showTermTextMatrix()
     {
         showSpinner = true;
-        await Task.Delay(TimeSpan.FromSeconds(2));
+
+        var (texts, words) = await GetTermTextData();
+        _termsStats = _statsService.GetTextTermsStats(texts, words);
+
         showSpinner = false;
+    }
+
+    private async Task<(IEnumerable<TextRecord>, IEnumerable<Word>)> GetTermTextData()
+    {
+        var texts = await _recordsService.GetTextRecords(int.MaxValue);
+        texts = texts.ToList();
+        var words = await _wordsService.GetWords(x => true);
+        words = words.ToList();
+        _wordsNames = words.ToDictionary(w => w.Id, w => w.Text);
+        return (texts, words);
     }
 }
