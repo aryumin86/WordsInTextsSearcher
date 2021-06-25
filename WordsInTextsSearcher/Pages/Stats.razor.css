@@ -1,0 +1,8 @@
+﻿.stats-tab-container {
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+tr:hover {
+    background-color: aliceblue;
+}

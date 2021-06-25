@@ -43,5 +43,6 @@ namespace WordsInTextsSearcher
         public virtual DbSet<Word> Words { get; set; }
         public virtual DbSet<WordForm> WordForms { get; set; }
         public virtual DbSet<TextRecord> TextRecords { get; set; }
+        public virtual DbSet<Tag> Tags { get; set; }
     }
 }

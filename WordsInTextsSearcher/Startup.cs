@@ -48,6 +48,7 @@ namespace WordsInTextsSearcher
             services.AddScoped<IWordsRepo, WordsRepo>();
             services.AddScoped<IWordFormsRepo, WordFormsRepo>();
             services.AddScoped<ITextRecordsRepo, TextRecordsRepo>();
+            services.AddScoped<ITagsRepo, TagsRepo>();
 
             services.AddRazorPages();
             services.AddServerSideBlazor();
@@ -55,6 +56,7 @@ namespace WordsInTextsSearcher
             services.AddScoped<WordsService>();
             services.AddScoped<WordFormsService>();
             services.AddScoped<StatsService>();
+            services.AddScoped<TagsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
