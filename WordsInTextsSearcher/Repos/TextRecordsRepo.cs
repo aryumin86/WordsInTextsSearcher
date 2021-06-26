@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -39,7 +40,7 @@ namespace WordsInTextsSearcher.Repos
 
         public IEnumerable<TextRecord> GetTextRecords(Expression<Func<TextRecord, bool>> predicate)
         {
-            return _dbContext.TextRecords.Where(predicate);
+            return _dbContext.TextRecords.Include(t => t.Tag).Where(predicate);
         }
 
         public TextRecord UpdateTextRecord(TextRecord textRecord)

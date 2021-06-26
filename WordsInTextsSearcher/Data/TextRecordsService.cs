@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using WordsInTextsSearcher.Entities;
 using WordsInTextsSearcher.Repos;
@@ -16,9 +17,14 @@ namespace WordsInTextsSearcher.Data
             _textRecordsRepo = textRecordsRepo;
         }
 
-        public async Task<IEnumerable<TextRecord>> GetTextRecords(int count = 100)
+        public async Task<IEnumerable<TextRecord>> GetTextRecords(int count = 10000)
         {
-            return await Task.FromResult(_textRecordsRepo.GetTextRecords(_ => true));
+            return await Task.FromResult(_textRecordsRepo.GetTextRecords(_ => true).Take(count));
+        }
+
+        public async Task<IEnumerable<TextRecord>> GetTextRecords(Expression<Func<TextRecord, bool>> predicate)
+        {
+            return await Task.FromResult(_textRecordsRepo.GetTextRecords(predicate));
         }
 
         public async Task<TextRecord> CreateTextRecord(TextRecord textRecord)

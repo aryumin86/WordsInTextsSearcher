@@ -1,0 +1,15 @@
+﻿.tags-tab tr th:nth-child(2) {
+    width: 90%;
+}
+
+.tagText:hover {
+    cursor: pointer;
+}
+
+tr:hover {
+    background-color: aliceblue;
+}
+
+.active-row {
+    background-color: aliceblue;
+}

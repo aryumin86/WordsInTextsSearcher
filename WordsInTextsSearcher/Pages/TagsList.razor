@@ -1,0 +1,116 @@
+﻿@page "/tagslist"
+
+@using WordsInTextsSearcher.Data
+@using WordsInTextsSearcher.Entities
+
+@inject TagsService tagsService
+
+<h3>Теги текстов</h3>
+
+<div class="row">
+    <div class="col col-6">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-primary"
+                        @onclick="@(async () => await CreateTag())">
+                    @getCreateUpdateTagButtonText()
+                </button>
+            </div>
+            <input type="text" class="form-control" @bind="currentTag.Text" />
+            <button class="btn btn-outline-warning ml-1" @onclick="ClearTagForm">очистить</button>
+        </div>
+        <div class="mt-2" hidden="@hideTagsTable()">
+            <table class="table table-striped tags-tab">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Слово</th>
+                    <th scope="col"></th>
+                </tr>
+                @foreach (var tag in allTextTags.OrderBy(t => t.Text))
+                {
+                    <tr class="@(currentTag.Id == tag.Id ? "active-row" : "")">
+                        <th scope="row">@tag.Id</th>
+                        <td class="tagText"
+                            @onclick="@(async () => await SetTagAsCurrent(tag))">
+                            @tag.Text
+                        </td>
+                        <td>
+                            <div class="d-flex flex-row">
+                                <button @onclick="@(async () => await DeleteTag(tag.Id))"
+                                        class="btn btn-outline-danger">
+                                    Удалить
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+
+        [Inject]
+        private TagsService _tagsService { get; set; }
+        [Inject]
+        private TextRecordsService _textRecordsService { get; set; }
+
+        private IEnumerable<Tag> allTextTags;
+        private Tag currentTag = new Tag();
+
+        private string getCreateUpdateTagButtonText() =>
+            currentTag.Id == 0 ? "создать" : "обновить";
+    
+    private bool hideTagsTable() => !allTextTags.Any();
+
+    private async Task ClearTagForm()
+    {
+        await Task.CompletedTask;
+        currentTag = new Tag();
+    }
+
+    private async Task SetTagAsCurrent(Tag tag)
+    {
+        currentTag = tag;
+        await Task.CompletedTask;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        allTextTags = await tagsService.GetTags(_ => true);
+    }
+
+    private async Task CreateTag()
+    {
+        if (currentTag.Id != 0)
+        {
+            await _tagsService.UpdateTag(currentTag);
+        }
+        else
+        {
+            await _tagsService.CreateTag(currentTag);
+        }
+
+        await ClearTagForm();
+    }
+
+    private async Task DeleteTag(int id)
+    {
+        var textsWithThisTag = await _textRecordsService.GetTextRecords(t => t.TagId == id);
+        foreach (var t in textsWithThisTag)
+        {
+            t.Tag = null;
+            t.TagId = null;
+            await _textRecordsService.UpdateTextRecord(t);
+        }
+
+        await _tagsService.DeleteTag(id);
+    }
+
+    private async Task UpdateTag()
+    {
+        await _tagsService.UpdateTag(currentTag);
+    }
+
+}

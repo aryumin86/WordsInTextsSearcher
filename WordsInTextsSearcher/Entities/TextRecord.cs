@@ -16,5 +16,6 @@ namespace WordsInTextsSearcher.Entities
         public DateTime WhenCreated { get; set; }
         public string Text { get; set; }
         public Tag Tag { get; set; }
+        public int? TagId { get; set; }
     }
 }
