@@ -25,12 +25,15 @@ namespace WordsInTextsSearcher.Helpers
             var numberHeaderCell = headersRow.CreateCell(0);
             numberHeaderCell.SetCellValue("Id");
 
-            var pubDateHeaderCell = headersRow.CreateCell(1);
-            pubDateHeaderCell.SetCellValue("Текст");
+            var titleHeaderCell = headersRow.CreateCell(1);
+            titleHeaderCell.SetCellValue("Название");
+
+            var textHeaderCell = headersRow.CreateCell(2);
+            textHeaderCell.SetCellValue("Текст");
 
             var wordsDict = words.ToDictionary(x => x.Id, x => x.Text);
 
-            int colNumber = 1;
+            int colNumber = 2;
             words = words.OrderBy(x => x.Id);
             foreach(var word in words)
             {
@@ -44,10 +47,14 @@ namespace WordsInTextsSearcher.Helpers
                 var row = sheet1.CreateRow(i+1);
                 var textIdCell = row.CreateCell(0);
                 textIdCell.SetCellValue(textRermsStatsArr[i].TextRecord.Id);
-                var textTextCell = row.CreateCell(1);
+
+                var textTitleCell = row.CreateCell(1);
+                textTitleCell.SetCellValue(textRermsStatsArr[i].TextRecord.Title);
+
+                var textTextCell = row.CreateCell(2);
                 textTextCell.SetCellValue(textRermsStatsArr[i].TextRecord.Text);
 
-                int columnNumber = 1;
+                int columnNumber = 2;
                 foreach(var word in words.ToArray())
                 {
                     var wordInTextOccuerencesCountCell = row.CreateCell(++columnNumber);
