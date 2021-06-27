@@ -2,6 +2,8 @@
 
 @using WordsInTextsSearcher.Data
 @using WordsInTextsSearcher.Entities
+@using System.Collections;
+@using System.Linq;
 
 @inject TagsService tagsService
 
@@ -98,7 +100,7 @@
     private async Task DeleteTag(int id)
     {
         var textsWithThisTag = await _textRecordsService.GetTextRecords(t => t.TagId == id);
-        foreach (var t in textsWithThisTag)
+        foreach (var t in textsWithThisTag.ToList())
         {
             t.Tag = null;
             t.TagId = null;

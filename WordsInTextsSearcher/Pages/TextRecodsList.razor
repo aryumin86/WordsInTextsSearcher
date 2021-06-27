@@ -10,21 +10,23 @@
 <div class="row">
     <div class="col col-10">
         <div class="row">
-            <div class="col col-6">
+            <div class="col col-5">
                 <input type="text" @bind="currentTextRecord.Title"
                        style="width: 100%" class="form-control mb-1" placeholder="название какое-то" />
             </div>
-            <div class="col col-6">
+            <div class="col col-5">
                 <div class="form-group d-flex flex-row align-items-baseline">
                     <label style="white-space: nowrap;" for="tagsSelect" class="mr-2">Тег</label>
                     <select id="tagsSelect" class="form-control" @bind="currentTextRecord.TagId">
-                        <option value="0">не выбран</option>
                         @foreach (var t in allTextTags)
                         {
                             <option value="@(t.Id)">@t.Text</option>
                         }
                     </select>
                 </div>
+            </div>
+            <div class="col col-2">
+                <button class="btn btn-outline-primary">Атрибуты</button>
             </div>
         </div>
         <div class="row">
