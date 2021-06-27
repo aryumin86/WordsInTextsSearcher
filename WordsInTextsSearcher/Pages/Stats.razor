@@ -23,8 +23,8 @@
     <div class="col col-3">
         <div class="form-group d-flex flex-row align-items-baseline">
             <label style="white-space: nowrap;" for="tagsSelect" class="mr-2">Только тег</label>
-            <select id="tagsSelect" class="form-control">
-                <option>не выбран</option>
+            <select id="tagsSelect" class="form-control" @bind="selectedTextTag.Id">
+                <option value="0">не выбран</option>
                 @foreach (var t in allTextTags)
                 {
                     <option value="@(t.Id)">@t.Text</option>
@@ -52,7 +52,7 @@
                 <th>@_wordsNames[@word.Key]</th>
             }
         </tr>
-        @foreach (var termTextStat in _termsStats)
+        @foreach (var termTextStat in _termsStats.Where(x => (selectedTextTag.Id == 0 ? true : x.TextRecord.Tag != null && x.TextRecord.Tag.Id == selectedTextTag.Id)))
         {
             <tr>
                 <td>
@@ -72,16 +72,16 @@
 
 @code {
 
-    [Inject]
-    private TextRecordsService _recordsService { get; set; }
-    [Inject]
-    private WordsService _wordsService { get; set; }
-    [Inject]
-    private StatsService _statsService { get; set; }
-    [Inject]
-    private NavigationManager _navManager { get; set; }
-    [Inject]
-    private IJSRuntime _js { get; set; }
+        [Inject]
+        private TextRecordsService _recordsService { get; set; }
+        [Inject]
+        private WordsService _wordsService { get; set; }
+        [Inject]
+        private StatsService _statsService { get; set; }
+        [Inject]
+        private NavigationManager _navManager { get; set; }
+        [Inject]
+        private IJSRuntime _js { get; set; }
 
     private IEnumerable<Tag> allTextTags;
 
@@ -93,6 +93,7 @@
     private bool showSpinner = false;
     private IEnumerable<TextTermsStat> _termsStats;
     private Dictionary<int, string> _wordsNames;
+    private Tag selectedTextTag = new Tag { Id = 0 };
 
     private async Task exportXLSXTermTextMatrix()
     {
@@ -129,7 +130,7 @@
 
     private async Task<(IEnumerable<TextRecord>, IEnumerable<Word>)> GetTermTextData()
     {
-        var texts = await _recordsService.GetTextRecords(int.MaxValue);
+        var texts = await _recordsService.GetTextRecords(t => selectedTextTag.Id == 0 ? true : t.Tag.Id == selectedTextTag.Id);
         texts = texts.ToList();
         var words = await _wordsService.GetWords(x => true);
         words = words.ToList();

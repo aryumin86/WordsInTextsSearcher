@@ -52,17 +52,18 @@ namespace WordsInTextsSearcher.Data
         {
             var wordPositions = new List<int>();
             int position = 0;
+            int offset = 0;
 
             full = full.ToLowerInvariant();
             substr = substr.ToLowerInvariant();
-
+            
             while(position >= 0 && substr.Length + position < full.Length)
             {
-                // Исправить вот тут позицию С НАЧАЛА ПОЛНОГО ТЕКСТА НАДО
                 position = full.IndexOf(substr, position); 
                 if(position >= 0)
                 {
-                    wordPositions.Add(position);
+                    offset += position;
+                    wordPositions.Add(offset);
                     position += substr.Length;
                 }
             }
