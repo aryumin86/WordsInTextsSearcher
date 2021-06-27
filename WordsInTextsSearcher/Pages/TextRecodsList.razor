@@ -108,6 +108,7 @@
     private async Task UpdateTextRecord(TextRecord textRecord)
     {
         await _recordsService.UpdateTextRecord(textRecord);
+        await ClearForm();
     }
 
     private async Task ClearForm()

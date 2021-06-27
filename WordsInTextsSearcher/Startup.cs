@@ -57,6 +57,11 @@ namespace WordsInTextsSearcher
             services.AddScoped<WordFormsService>();
             services.AddScoped<StatsService>();
             services.AddScoped<TagsService>();
+
+            services.AddSignalR(hubOptions =>
+            {
+                hubOptions.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
