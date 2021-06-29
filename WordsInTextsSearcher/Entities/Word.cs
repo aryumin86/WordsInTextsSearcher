@@ -15,6 +15,7 @@ namespace WordsInTextsSearcher.Entities
         public DateTime WhenCreated { get; set; }
         public string Text { get; set; }
         public ICollection<WordForm> WordForms { get; set; }
-
+        public int ProjectId { get; set; }
+        public Project Project { get; set; }
     }
 }

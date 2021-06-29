@@ -14,5 +14,7 @@ namespace WordsInTextsSearcher.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Text { get; set; }
+        public Project Project { get; set; }
+        public int ProjectId { get; set; }
     }
 }
