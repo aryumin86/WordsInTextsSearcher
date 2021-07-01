@@ -20,7 +20,7 @@ namespace WordsInTextsSearcher.Repos
         public Project CreateProject(Project project)
         {
             if(_searcherDbContext.Projects
-                .Any(p => p.Title.ToLowerInvariant() == project.Title.ToLowerInvariant()))
+                .Any(p => p.Title == project.Title))
             {
                 throw new ArgumentException("Project with this name already exists");
             }
@@ -39,11 +39,13 @@ namespace WordsInTextsSearcher.Repos
             var words = _searcherDbContext.Words.Where(x => x.ProjectId == id);
             var wordsIds = words.Select(w => w.Id);
             var wordForms = _searcherDbContext.WordForms.Where(x => wordsIds.Contains(x.WordId));
+            var proj = _searcherDbContext.Projects.Find(id);
 
             _searcherDbContext.WordForms.RemoveRange(wordForms);
             _searcherDbContext.Words.RemoveRange(words);
             _searcherDbContext.TextRecords.RemoveRange(texts);
             _searcherDbContext.Tags.RemoveRange(tags);
+            _searcherDbContext.Projects.Remove(proj);
 
             _searcherDbContext.SaveChanges();
         }

@@ -6,6 +6,7 @@
 @using System.Linq;
 
 @inject TagsService tagsService
+@inject ProjectsService projectsService
 
 <h3>Теги текстов</h3>
 
@@ -53,17 +54,18 @@
 
 @code {
 
-        [Inject]
-        private TagsService _tagsService { get; set; }
-        [Inject]
-        private TextRecordsService _textRecordsService { get; set; }
+    [Inject]
+    private TagsService _tagsService { get; set; }
+    [Inject]
+    private TextRecordsService _textRecordsService { get; set; }
+    [Inject] private ProjectsService _projectsService { get; set; }
 
-        private IEnumerable<Tag> allTextTags;
-        private Tag currentTag = new Tag();
+    private IEnumerable<Tag> allTextTags;
+    private Tag currentTag = new Tag();
 
-        private string getCreateUpdateTagButtonText() =>
-            currentTag.Id == 0 ? "создать" : "обновить";
-    
+    private string getCreateUpdateTagButtonText() =>
+        currentTag.Id == 0 ? "создать" : "обновить";
+
     private bool hideTagsTable() => !allTextTags.Any();
 
     private async Task ClearTagForm()
@@ -91,6 +93,8 @@
         }
         else
         {
+            currentTag.Project = _projectsService.CurrentProject;
+            currentTag.ProjectId = _projectsService.CurrentProject.Id;
             await _tagsService.CreateTag(currentTag);
         }
 

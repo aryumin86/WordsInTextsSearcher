@@ -12,6 +12,21 @@ namespace WordsInTextsSearcher.Data
     {
         private IProjectsRepo _projectsRepo;
 
+        private Project _currentProject;
+        public event Action OnCurrentProjectChanged;
+        public Project CurrentProject
+        {
+            get
+            {
+                return _currentProject;
+            }
+            set
+            {
+                _currentProject = value;
+                OnCurrentProjectChanged?.Invoke();
+            }
+        }
+
         public ProjectsService(IProjectsRepo projectsRepo)
         {
             _projectsRepo = projectsRepo;

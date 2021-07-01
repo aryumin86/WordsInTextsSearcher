@@ -6,8 +6,9 @@
 @using NPOI.Util
 
 @inject TagsService tagsService
+@inject ProjectsService projectsService
 
-    <h3>Статистика</h3>
+<h3>Статистика</h3>
 
 <div class="row mb-2">
     <div class="col col-6">
@@ -43,45 +44,45 @@
 
 @if (_termsStats != null && _termsStats.Any())
 {
-<div class="stats-tab-container">
-    <table class="table table-striped">
-        <tr>
-            <th scope="col">Название текста</th>
-            @foreach (var word in _termsStats.First().WordsCount)
-            {
-                <th>@_wordsNames[@word.Key]</th>
-            }
-        </tr>
-        @foreach (var termTextStat in _termsStats.Where(x => (selectedTextTag.Id == 0 ? true : x.TextRecord.Tag != null && x.TextRecord.Tag.Id == selectedTextTag.Id)))
-        {
+    <div class="stats-tab-container">
+        <table class="table table-striped">
             <tr>
-                <td>
-                    @termTextStat.TextRecord.Title
-                </td>
-                @foreach (var word in termTextStat.WordsCount)
+                <th scope="col">Название текста</th>
+                @foreach (var word in _termsStats.First().WordsCount)
                 {
-                    <td>@word.Value</td>
+                    <th>@_wordsNames[@word.Key]</th>
                 }
             </tr>
-        }
-    </table>
-</div>
-    
+            @foreach (var termTextStat in _termsStats.Where(x => (selectedTextTag.Id == 0 ? true : x.TextRecord.Tag != null && x.TextRecord.Tag.Id == selectedTextTag.Id)))
+            {
+                <tr>
+                    <td>
+                        @termTextStat.TextRecord.Title
+                    </td>
+                    @foreach (var word in termTextStat.WordsCount)
+                    {
+                        <td>@word.Value</td>
+                    }
+                </tr>
+            }
+        </table>
+    </div>
+
 }
 
 
 @code {
 
-        [Inject]
-        private TextRecordsService _recordsService { get; set; }
-        [Inject]
-        private WordsService _wordsService { get; set; }
-        [Inject]
-        private StatsService _statsService { get; set; }
-        [Inject]
-        private NavigationManager _navManager { get; set; }
-        [Inject]
-        private IJSRuntime _js { get; set; }
+    [Inject]
+    private TextRecordsService _recordsService { get; set; }
+    [Inject]
+    private WordsService _wordsService { get; set; }
+    [Inject]
+    private StatsService _statsService { get; set; }
+    [Inject]
+    private NavigationManager _navManager { get; set; }
+    [Inject]
+    private IJSRuntime _js { get; set; }
 
     private IEnumerable<Tag> allTextTags;
 

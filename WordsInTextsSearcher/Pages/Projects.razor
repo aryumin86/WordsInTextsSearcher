@@ -2,6 +2,116 @@
 
 <h3>Проекты</h3>
 
-@code {
+@using WordsInTextsSearcher.Data
+@using WordsInTextsSearcher.Entities
+@using System.Collections;
+@using System.Linq;
 
+@inject ProjectsService projectsService
+
+@implements IDisposable
+
+<div class="row">
+    <div class="col col-6">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-primary"
+                        @onclick="@(async () => await CreateProject())">
+                    @getCreateUpdateProjectButtonText()
+                </button>
+            </div>
+            <input type="text" class="form-control" @bind="currentProject.Title" />
+            <button class="btn btn-outline-warning ml-1" @onclick="ClearProjectsForm">очистить</button>
+        </div>
+        <div class="mt-2" hidden="@hideProjectsTable()">
+            <table class="table table-striped projects-tab">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Слово</th>
+                    <th scope="col"></th>
+                </tr>
+                @foreach (var project in allProjects.OrderBy(t => t.Title))
+                {
+                    <tr class="@(currentProject.Id == project.Id ? "active-row" : "")">
+                        <th scope="row">@project.Id</th>
+                        <td class="projectText"
+                            @onclick="@(async () => await SetProjectAsCurrent(project))">
+                            @project.Title
+                        </td>
+                        <td>
+                            <div class="d-flex flex-row">
+                                <button @onclick="@(async () => await DeleteProject(project.Id))"
+                                        class="btn btn-outline-danger">
+                                    Удалить
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject] private ProjectsService _projectsService { get; set; }
+
+    private IEnumerable<Project> allProjects;
+    private Project currentProject = new Project();
+
+    protected override async Task OnInitializedAsync()
+    {
+        allProjects = await _projectsService.GetProjects(_ => true);
+    }
+
+    protected override void OnInitialized()
+    {
+        _projectsService.OnCurrentProjectChanged += StateHasChanged;
+    }
+    public void Dispose()
+    {
+        _projectsService.OnCurrentProjectChanged -= StateHasChanged;
+    }
+
+    private string getCreateUpdateProjectButtonText() =>
+    currentProject.Id == 0 ? "создать" : "обновить";
+
+    private bool hideProjectsTable() => !allProjects.Any();
+
+    private async Task ClearProjectsForm()
+    {
+        await Task.CompletedTask;
+        currentProject = new Project();
+    }
+
+    private async Task SetProjectAsCurrent(Project project)
+    {
+        _projectsService.CurrentProject = project;
+        currentProject = project;
+        await Task.CompletedTask;
+    }
+
+    private async Task CreateProject()
+    {
+        if (currentProject.Id != 0)
+        {
+            await _projectsService.UpdateProject(currentProject);
+        }
+        else
+        {
+            await _projectsService.CreateProject(currentProject);
+        }
+
+        await ClearProjectsForm();
+    }
+
+    private async Task DeleteProject(int id)
+    {
+        await _projectsService.DeleteProject(id);
+    }
+
+    private async Task UpdateProject()
+    {
+        await _projectsService.UpdateProject(currentProject);
+    }
 }

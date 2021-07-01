@@ -1,5 +1,13 @@
 ﻿@page "/attributes"
 
+@using WordsInTextsSearcher.Data
+@using WordsInTextsSearcher.Entities
+@using System.Collections;
+@using System.Linq;
+
+@inject ProjectsService projectsService
+@inject TextAttributesService textAttributesService;
+
 <h3>Атрибуты текстов</h3>
 
 @code {
