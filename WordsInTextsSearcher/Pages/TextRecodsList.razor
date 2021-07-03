@@ -5,6 +5,7 @@
 
 @inject TextRecordsService textRecordsService
 @inject TagsService tagsService
+@inject NavigationManager navigationManager
 
 <h3>Тексты</h3>
 
@@ -42,101 +43,106 @@
         <button class="btn btn-outline-primary mb-1"
                 @onclick="@(async () => await CreateTextRecord())">
             @getCreateUpdateButtonText()
-            </button>
-            <button class="btn btn-outline-warning mb-1"
-                    @onclick="@(async () => await ClearForm())">
-                Очистить
-            </button>
-            <button class="btn btn-outline-primary mb-1">Импорт</button>
-            <button class="btn btn-outline-primary mb-3">Экспорт</button>
-            <strong>Всего текстов: @textRecords.Count()</strong>
-        </div>
+        </button>
+        <button class="btn btn-outline-warning mb-1"
+                @onclick="@(async () => await ClearForm())">
+            Очистить
+        </button>
+        <button class="btn btn-outline-primary mb-1">Импорт</button>
+        <button class="btn btn-outline-primary mb-3">Экспорт</button>
+        <strong>Всего текстов: @textRecords.Count()</strong>
     </div>
-    <div class="row" hidden="@hideTextRecordsTable()">
-        <table class="table table-striped">
-            <tr>
-                <th scope="col">Id</th>
-                <th scope="col">Название</th>
-                <th scope="col">Дата</th>
-                <th scope="col"></th>
+</div>
+<div class="row" hidden="@hideTextRecordsTable()">
+    <table class="table table-striped">
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Название</th>
+            <th scope="col">Дата</th>
+            <th scope="col"></th>
+        </tr>
+        @foreach (var textRecord in textRecords)
+        {
+            <tr class="@(textRecord.Id == currentTextRecord.Id ? "active-row" : "")">
+                <th scope="row">@textRecord.Id</th>
+                <td class="textRecordTitleTd"
+                    @onclick="@(async() => await SetTextRecordAsCurrent(textRecord))">
+                    @textRecord.Title
+                </td>
+                <td>@textRecord.WhenCreated</td>
+                <td>
+                    <div class="d-flex flex-row">
+                        <button @onclick="@(async() => await DeleteTextRecord(textRecord.Id))"
+                                class="btn btn-outline-danger">
+                            Удалить
+                        </button>
+                    </div>
+                </td>
             </tr>
-            @foreach (var textRecord in textRecords)
-            {
-                <tr class="@(textRecord.Id == currentTextRecord.Id ? "active-row" : "")">
-                    <th scope="row">@textRecord.Id</th>
-                    <td class="textRecordTitleTd"
-                        @onclick="@(async() => await SetTextRecordAsCurrent(textRecord))">
-                        @textRecord.Title
-                    </td>
-                    <td>@textRecord.WhenCreated</td>
-                    <td>
-                        <div class="d-flex flex-row">
-                            <button @onclick="@(async() => await DeleteTextRecord(textRecord.Id))"
-                                    class="btn btn-outline-danger">
-                                Удалить
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            }
-        </table>
-    </div>
+        }
+    </table>
+</div>
 
-    @code {
+@code {
 
-        [Inject] private WordsInTextsSearcher.Data.TextRecordsService _recordsService { get; set; }
-        [Inject] private ProjectsService _projectsService { get; set; }
+    [Inject] private WordsInTextsSearcher.Data.TextRecordsService _recordsService { get; set; }
+    [Inject] private ProjectsService _projectsService { get; set; }
 
-        private IEnumerable<TextRecord> textRecords;
-        private IEnumerable<Tag> allTextTags;
-        private TextRecord currentTextRecord = new TextRecord { };
-        private string getCreateUpdateButtonText() =>
-            currentTextRecord.Id == 0 ? "создать" : "обновить";
-        private bool hideTextRecordsTable() => !textRecords.Any();
+    private IEnumerable<TextRecord> textRecords;
+    private IEnumerable<Tag> allTextTags;
+    private TextRecord currentTextRecord = new TextRecord { };
+    private string getCreateUpdateButtonText() =>
+        currentTextRecord.Id == 0 ? "создать" : "обновить";
+    private bool hideTextRecordsTable() => !textRecords.Any();
 
-        protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        if (projectsService.CurrentProject == null)
         {
-            textRecords = await textRecordsService.GetTextRecords();
-            allTextTags = await tagsService.GetTags(_ => true);
+            navigationManager.NavigateTo("/projects");
         }
 
-        private async Task CreateTextRecord()
-        {
-            if (currentTextRecord.Id != 0)
-            {
-                await UpdateTextRecord(currentTextRecord);
-            }
-            else
-            {
-                currentTextRecord.WhenCreated = DateTime.Now;
-                currentTextRecord.Project = _projectsService.CurrentProject;
-                currentTextRecord.ProjectId = _projectsService.CurrentProject.Id;
-                await _recordsService.CreateTextRecord(currentTextRecord);
-            }
-            await ClearForm();
-        }
-
-        private async Task UpdateTextRecord(TextRecord textRecord)
-        {
-            await _recordsService.UpdateTextRecord(textRecord);
-            await ClearForm();
-        }
-
-        private async Task ClearForm()
-        {
-            currentTextRecord = new TextRecord { };
-            await Task.CompletedTask;
-        }
-
-        private async Task DeleteTextRecord(int id)
-        {
-            await _recordsService.DeleteTextRecord(id);
-            await ClearForm();
-        }
-
-        private async Task SetTextRecordAsCurrent(TextRecord textRecord)
-        {
-            currentTextRecord = textRecord;
-            await Task.CompletedTask;
-        }
+        textRecords = await textRecordsService.GetTextRecords();
+        allTextTags = await tagsService.GetTags(_ => true);
     }
+
+    private async Task CreateTextRecord()
+    {
+        if (currentTextRecord.Id != 0)
+        {
+            await UpdateTextRecord(currentTextRecord);
+        }
+        else
+        {
+            currentTextRecord.WhenCreated = DateTime.Now;
+            currentTextRecord.Project = _projectsService.CurrentProject;
+            currentTextRecord.ProjectId = _projectsService.CurrentProject.Id;
+            await _recordsService.CreateTextRecord(currentTextRecord);
+        }
+        await ClearForm();
+    }
+
+    private async Task UpdateTextRecord(TextRecord textRecord)
+    {
+        await _recordsService.UpdateTextRecord(textRecord);
+        await ClearForm();
+    }
+
+    private async Task ClearForm()
+    {
+        currentTextRecord = new TextRecord { };
+        await Task.CompletedTask;
+    }
+
+    private async Task DeleteTextRecord(int id)
+    {
+        await _recordsService.DeleteTextRecord(id);
+        await ClearForm();
+    }
+
+    private async Task SetTextRecordAsCurrent(TextRecord textRecord)
+    {
+        currentTextRecord = textRecord;
+        await Task.CompletedTask;
+    }
+}

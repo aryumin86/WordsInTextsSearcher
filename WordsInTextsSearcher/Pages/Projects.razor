@@ -51,6 +51,20 @@
             </table>
         </div>
     </div>
+    <div class="col col-6">
+        <div>
+            @if (_projectsService.CurrentProject == null)
+            {
+                <h5 style="margin-top: .5rem" class="text-warning">Проект не выбран! Выберите</h5>
+            }
+            else
+            {
+                <h5 style="margin-top: .5rem" class="text-primary">
+            Текущий проект: @_projectsService.CurrentProject.Title (id: @_projectsService.CurrentProject.Id)
+                </h5>
+            }
+        </div>
+    </div>
 </div>
 
 @code {

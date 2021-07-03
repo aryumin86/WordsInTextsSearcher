@@ -5,11 +5,21 @@
 @using System.Collections;
 @using System.Linq;
 
-@inject ProjectsService projectsService
+@inject ProjectsService _projectsService
 @inject TextAttributesService textAttributesService;
+@inject NavigationManager navigationManager
 
 <h3>Атрибуты текстов</h3>
 
 @code {
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_projectsService.CurrentProject == null)
+        {
+            navigationManager.NavigateTo("/projects");
+        }
+    }
 
 }

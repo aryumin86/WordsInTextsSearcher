@@ -4,6 +4,7 @@
 
 @inject WordsService wordsService
 @inject WordFormsService wordFormsService
+@inject NavigationManager navigationManager
 
 <div class="row">
     <div class="col col-6">
@@ -121,6 +122,11 @@
 
         protected override async Task OnInitializedAsync()
         {
+            if(_projectsService.CurrentProject == null)
+            {
+                navigationManager.NavigateTo("/projects");
+            }
+
             allWords = await wordsService.GetWords(x => true);
         }
 
