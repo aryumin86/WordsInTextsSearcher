@@ -1,0 +1,19 @@
+﻿.attr-tab tr th:nth-child(3) {
+    width: 90%;
+}
+
+.attr-forms-tab tr th:nth-child(2) {
+    width: 90%;
+}
+
+.attrTextTd:hover {
+    cursor: pointer;
+}
+
+tr:hover {
+    background-color: aliceblue;
+}
+
+.active-row {
+    background-color: aliceblue;
+}

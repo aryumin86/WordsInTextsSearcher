@@ -5,21 +5,212 @@
 @using System.Collections;
 @using System.Linq;
 
-@inject ProjectsService _projectsService
+@inject ProjectsService projectsService
 @inject TextAttributesService textAttributesService;
 @inject NavigationManager navigationManager
 
-<h3>Атрибуты текстов</h3>
+<div class="row">
+    <div class="col col-6">
+        <h3>Атрибуты</h3>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-primary"
+                        @onclick="@(async () => await CreateTextAttribute())">
+                    @getCreateUpdateTextAttributeButtonText()
+                </button>
+            </div>
+            <input type="text" class="form-control" @bind="currentTextAttribute.Name" />
+            <button class="btn btn-outline-warning ml-1" @onclick="ClearTextAttributesForm">очистить</button>
+        </div>
+        <div class="mt-2" hidden="@hideTextAttributesTable()">
+            <table class="table table-striped attr-tab">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Значений</th>
+                    <th scope="col">Атрибут</th>
+                    <th scope="col"></th>
+                </tr>
+                @foreach (var attr in allTextAttributes.OrderBy(x => x.Name))
+                {
+                    <tr class="@(currentTextAttribute.Id == attr.Id ? "active-row" : "")">
+                        <th scope="row">@attr.Id</th>
+                        <th scope="row">@attr.Values.Count()</th>
+                        <td class="attrTextTd"
+                            @onclick="@(async() => await SetTextAttributeAsCurrent(attr))">
+                            @attr.Name
+                        </td>
+                        <td>
+                            <div class="d-flex flex-row">
+                                <button @onclick="@(async() => await DeleteTextAttribute(attr.Id))"
+                                        class="btn btn-outline-danger">
+                                    Удалить
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+    <div class="col col-6">
+        <h3>Значения</h3>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-primary"
+                        disabled="@(currentTextAttribute == null || currentTextAttribute.Id == 0)"
+                        @onclick="@(async () => await CreateTextAttributeValue())">
+                    @getCreateUpdateTextAttributeValueButtonText()
+                </button>
+            </div>
+            <input type="text" class="form-control"
+                   disabled="@(currentTextAttribute == null || currentTextAttribute.Id == 0)"
+                   @bind="currentTextAttributeValue.Value" />
+            <button class="btn btn-outline-warning ml-1"
+                    @onclick="ClearTextAttributeValuesForm">
+                очистить
+            </button>
+        </div>
+        <div class="mt-2" hidden="@hideTextAttributeValuesTable()">
+            <table class="table table-striped word-forms-tab">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Слово</th>
+                    <th scope="col"></th>
+                </tr>
+                @if (currentTextAttribute != null && currentTextAttribute.Values != null)
+                {
+                    @foreach (var attrVal in currentTextAttribute.Values.OrderBy(x => x.Value))
+                    {
+                        <tr class="@(currentTextAttributeValue.Id == attrVal.Id ? "active-row" : "")">
+                            <th scope="row">@attrVal.Id</th>
+                            <td class="attrTextTd"
+                                @onclick="@(async() => await SetTextAttributeValueAsCurrent(attrVal))">
+                                @attrVal.Value
+                            </td>
+                            <td>
+                                <div class="d-flex flex-row">
+                                    <button @onclick="@(async() => await DeleteTextAttributeValue(attrVal.Id))"
+                                            class="btn btn-outline-danger">
+                                        Удалить
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    </div>
+</div>
 
 @code {
 
+    [Inject] private WordsInTextsSearcher.Data.TextAttributesService _textAttributesService { get; set; }
+    [Inject] private ProjectsService _projectsService { get; set; }
+
+    private TextAttribute currentTextAttribute = new TextAttribute();
+    private TextAttributeValue currentTextAttributeValue = new TextAttributeValue();
+    private IEnumerable<TextAttribute> allTextAttributes = new List<TextAttribute>();
+
+    private bool hideTextAttributesTable() => !allTextAttributes.Any();
+    private bool hideTextAttributeValuesTable() =>
+        currentTextAttribute == null || currentTextAttribute.Values == null || !currentTextAttribute.Values.Any();
+    private string getCreateUpdateTextAttributeButtonText() =>
+        currentTextAttribute.Id == 0 ? "создать" : "обновить";
+    private string getCreateUpdateTextAttributeValueButtonText() =>
+        currentTextAttributeValue.Id == 0 ? "создать" : "обновить";
 
     protected override async Task OnInitializedAsync()
     {
-        if (_projectsService.CurrentProject == null)
+        if (projectsService.CurrentProject == null)
         {
             navigationManager.NavigateTo("/projects");
         }
+
+        allTextAttributes = 
+            await _textAttributesService.GetTextAttributesAsync(x => x.ProjectId == projectsService.CurrentProject.Id);
+    }
+
+    private async Task ClearTextAttributesForm()
+    {
+        await Task.CompletedTask;
+        currentTextAttribute = new TextAttribute();
+    }
+
+    private async Task ClearTextAttributeValuesForm()
+    {
+        currentTextAttributeValue = new TextAttributeValue() {
+            TextAttribute = currentTextAttribute, TextAttributeId = currentTextAttribute.Id
+        };
+        await Task.CompletedTask;
+    }
+
+    private async Task CreateTextAttribute()
+    {
+        if (currentTextAttribute.Id != 0)
+        {
+            await _textAttributesService.UpdateTextAttribute(currentTextAttribute);
+        }
+        else
+        {
+            currentTextAttribute.Project = _projectsService.CurrentProject;
+            currentTextAttribute.ProjectId = _projectsService.CurrentProject.Id;
+            await _textAttributesService.CreateTextAttribute(currentTextAttribute);
+        }
+        await ClearTextAttributesForm();
+
+    }
+
+    private async Task DeleteTextAttribute(int id)
+    {
+        await _textAttributesService.DeleteTextAttribute(id);
+        await ClearTextAttributesForm();
+    }
+
+    private async Task UpdateWord()
+    {
+        await _textAttributesService.UpdateTextAttribute(currentTextAttribute);
+    }
+
+    private async Task CreateTextAttributeValue()
+    {
+        currentTextAttributeValue.TextAttribute = currentTextAttribute;
+        currentTextAttributeValue.TextAttributeId = currentTextAttribute.Id;
+
+        if (currentTextAttributeValue.Id != 0)
+        {
+            await _textAttributesService.UpdateTextAttributeValue(currentTextAttributeValue);
+        }
+        else
+        {
+            await _textAttributesService.CreateTextAttributeValue(currentTextAttributeValue);
+        }
+
+        await ClearTextAttributeValuesForm();
+    }
+
+    private async Task UpdateTextAttributeValue(TextAttributeValue textAttributeValue)
+    {
+        await _textAttributesService.UpdateTextAttributeValue(textAttributeValue);
+    }
+
+    private async Task DeleteTextAttributeValue(int id)
+    {
+        await _textAttributesService.DeleteTextAttributeValue(id);
+        await ClearTextAttributeValuesForm();
+        currentTextAttribute.Values = currentTextAttribute.Values.Where(x => x.Id != id).ToList();
+    }
+
+    private async Task SetTextAttributeAsCurrent(TextAttribute textAttribute)
+    {
+        currentTextAttribute = textAttribute;
+        await ClearTextAttributeValuesForm();
+    }
+
+    private async Task SetTextAttributeValueAsCurrent(TextAttributeValue textAttributeValue)
+    {
+        currentTextAttributeValue = textAttributeValue;
+        await Task.CompletedTask;
     }
 
 }
