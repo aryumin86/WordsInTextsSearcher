@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -38,7 +39,7 @@ namespace WordsInTextsSearcher.Repos
 
         public IEnumerable<TextAttribute> GetTextAttributes(Expression<Func<TextAttribute, bool>> predicate)
         {
-            return _searcherDbContext.TextAttributes.Where(predicate);
+            return _searcherDbContext.TextAttributes.Include(x => x.Values).Where(predicate);
         }
 
         public TextAttribute UpdateTextAttribute(TextAttribute textAttribute)

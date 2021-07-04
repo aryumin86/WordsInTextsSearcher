@@ -17,7 +17,8 @@ tr:hover {
 .attrs-container {
     border: 1px solid #ced4da;
     overflow-y: auto;
-    max-height: 10rem;
+    max-height: 16rem;
+    min-height: 16rem;
 }
 
 .attrs-container table th:nth-child(1) {
@@ -25,5 +26,6 @@ tr:hover {
 }
 
 textarea {
-    max-height: 10rem;
+    max-height: 16rem;
+    min-height: 16rem;
 }
