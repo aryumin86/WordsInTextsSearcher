@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WordsInTextsSearcher;
@@ -9,9 +10,10 @@ using WordsInTextsSearcher;
 namespace WordsInTextsSearcher.Migrations
 {
     [DbContext(typeof(SearcherDbContext))]
-    partial class SearcherDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210704083358_addedTextAttrsBindings2")]
+    partial class addedTextAttrsBindings2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,16 +72,11 @@ namespace WordsInTextsSearcher.Migrations
                     b.Property<int>("AttributeValueId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TextRecordId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AttributeId");
 
                     b.HasIndex("AttributeValueId");
-
-                    b.HasIndex("TextRecordId");
 
                     b.ToTable("TextAttrBindings");
                 });
@@ -231,17 +228,9 @@ namespace WordsInTextsSearcher.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WordsInTextsSearcher.Entities.TextRecord", "TextRecord")
-                        .WithMany()
-                        .HasForeignKey("TextRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("TextAttribute");
 
                     b.Navigation("TextAttributeValue");
-
-                    b.Navigation("TextRecord");
                 });
 
             modelBuilder.Entity("WordsInTextsSearcher.Entities.TextAttribute", b =>

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WordsInTextsSearcher;
@@ -9,9 +10,10 @@ using WordsInTextsSearcher;
 namespace WordsInTextsSearcher.Migrations
 {
     [DbContext(typeof(SearcherDbContext))]
-    partial class SearcherDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210704083251_addedTextAttrsBindings")]
+    partial class addedTextAttrsBindings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,33 +57,6 @@ namespace WordsInTextsSearcher.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("Tags");
-                });
-
-            modelBuilder.Entity("WordsInTextsSearcher.Entities.TextAttrBinding", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int>("AttributeId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("AttributeValueId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TextRecordId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AttributeId");
-
-                    b.HasIndex("AttributeValueId");
-
-                    b.HasIndex("TextRecordId");
-
-                    b.ToTable("TextAttrBindings");
                 });
 
             modelBuilder.Entity("WordsInTextsSearcher.Entities.TextAttribute", b =>
@@ -215,33 +190,6 @@ namespace WordsInTextsSearcher.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("WordsInTextsSearcher.Entities.TextAttrBinding", b =>
-                {
-                    b.HasOne("WordsInTextsSearcher.Entities.TextAttribute", "TextAttribute")
-                        .WithMany()
-                        .HasForeignKey("AttributeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WordsInTextsSearcher.Entities.TextAttributeValue", "TextAttributeValue")
-                        .WithMany()
-                        .HasForeignKey("AttributeValueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WordsInTextsSearcher.Entities.TextRecord", "TextRecord")
-                        .WithMany()
-                        .HasForeignKey("TextRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TextAttribute");
-
-                    b.Navigation("TextAttributeValue");
-
-                    b.Navigation("TextRecord");
                 });
 
             modelBuilder.Entity("WordsInTextsSearcher.Entities.TextAttribute", b =>

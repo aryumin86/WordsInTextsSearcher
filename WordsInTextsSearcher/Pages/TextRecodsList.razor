@@ -5,6 +5,7 @@
 
 @inject TextRecordsService textRecordsService
 @inject TagsService tagsService
+@inject TextAttributesService textAttributesService
 @inject ProjectsService projectsService
 @inject NavigationManager navigationManager
 
@@ -13,11 +14,11 @@
 <div class="row">
     <div class="col col-10">
         <div class="row">
-            <div class="col col-5">
+            <div class="col col-6">
                 <input type="text" @bind="currentTextRecord.Title"
                        style="width: 100%" class="form-control mb-1" placeholder="название какое-то" />
             </div>
-            <div class="col col-5">
+            <div class="col col-6">
                 <div class="form-group d-flex flex-row align-items-baseline">
                     <label style="white-space: nowrap;" for="tagsSelect" class="mr-2">Тег</label>
                     <select id="tagsSelect" class="form-control" @bind="currentTextRecord.TagId">
@@ -28,15 +29,36 @@
                     </select>
                 </div>
             </div>
-            <div class="col col-2">
-                <button class="btn btn-outline-primary">Атрибуты</button>
-            </div>
         </div>
         <div class="row">
-            <div class="col col-12">
+            <div class="col col-6">
                 <textarea rows="8" style="width: 100%; resize: none;" class="form-control mb-2"
                           @bind="currentTextRecord.Text"
                           placeholder="сюда вставьте новый текст"></textarea>
+            </div>
+            <div class="col col-6">
+                <div class="attrs-container">
+                    <table class="table table-striped">
+                        <tr>
+                            <th scope="col">Атрибут</th>
+                            <th scope="col">Значение</th>
+                        </tr>
+                        @foreach (var attr in allTextAttributes.Where(x => x.Values != null && x.Values.Any()))
+                        {
+                            <tr>
+                                <td>@attr.Name</td>
+                                <td>
+                                    <select>
+                                        @foreach(var av in attr.Values)
+                                        {
+                                            <option value="@av.Id">@av.Value</option>
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -88,9 +110,11 @@
 
     [Inject] private WordsInTextsSearcher.Data.TextRecordsService _recordsService { get; set; }
     [Inject] private ProjectsService _projectsService { get; set; }
+    [Inject] private TextAttributesService _textAttributesService { get; set; }
 
     private IEnumerable<TextRecord> textRecords;
     private IEnumerable<Tag> allTextTags;
+    private IEnumerable<TextAttribute> allTextAttributes;
     private TextRecord currentTextRecord = new TextRecord { };
     private string getCreateUpdateButtonText() =>
         currentTextRecord.Id == 0 ? "создать" : "обновить";
@@ -103,8 +127,12 @@
             navigationManager.NavigateTo("/projects");
         }
 
-        textRecords = await textRecordsService.GetTextRecords();
-        allTextTags = await tagsService.GetTags(_ => true);
+        textRecords = 
+            await textRecordsService.GetTextRecords(x => x.ProjectId == projectsService.CurrentProject.Id);
+        allTextTags = 
+            await tagsService.GetTags(x => x.ProjectId == projectsService.CurrentProject.Id);
+        allTextAttributes = 
+            await textAttributesService.GetTextAttributesAsync(x => x.ProjectId == projectsService.CurrentProject.Id);
     }
 
     private async Task CreateTextRecord()

@@ -47,5 +47,6 @@ namespace WordsInTextsSearcher
         public virtual DbSet<Project> Projects { get; set; }
         public virtual DbSet<TextAttribute> TextAttributes { get; set; }
         public virtual DbSet<TextAttributeValue> TextAttributeValues { get; set; }
+        public virtual DbSet<TextAttrBinding> TextAttrBindings { get; set; }
     }
 }

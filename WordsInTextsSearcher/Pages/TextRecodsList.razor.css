@@ -13,3 +13,17 @@ tr:hover {
 .active-row {
     background-color: aliceblue;
 }
+
+.attrs-container {
+    border: 1px solid #ced4da;
+    overflow-y: auto;
+    max-height: 10rem;
+}
+
+.attrs-container table th:nth-child(1) {
+    width: 50%;
+}
+
+textarea {
+    max-height: 10rem;
+}
