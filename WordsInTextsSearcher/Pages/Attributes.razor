@@ -3,6 +3,7 @@
 @using WordsInTextsSearcher.Data
 @using WordsInTextsSearcher.Entities
 @using System.Collections;
+@using System.Collections.Generic;
 @using System.Linq;
 
 @inject ProjectsService projectsService
@@ -34,7 +35,7 @@
                 {
                     <tr class="@(currentTextAttribute.Id == attr.Id ? "active-row" : "")">
                         <th scope="row">@attr.Id</th>
-                        <th scope="row">@attr.Values.Count()</th>
+                        <th scope="row">@(attr.Values != null ? attr.Values.Count() : 0)</th>
                         <td class="attrTextTd"
                             @onclick="@(async() => await SetTextAttributeAsCurrent(attr))">
                             @attr.Name
@@ -110,9 +111,9 @@
 
     private TextAttribute currentTextAttribute = new TextAttribute();
     private TextAttributeValue currentTextAttributeValue = new TextAttributeValue();
-    private IEnumerable<TextAttribute> allTextAttributes = new List<TextAttribute>();
+    private IEnumerable<TextAttribute> allTextAttributes;
 
-    private bool hideTextAttributesTable() => !allTextAttributes.Any();
+    private bool hideTextAttributesTable() => allTextAttributes == null || !allTextAttributes.Any();
     private bool hideTextAttributeValuesTable() =>
         currentTextAttribute == null || currentTextAttribute.Values == null || !currentTextAttribute.Values.Any();
     private string getCreateUpdateTextAttributeButtonText() =>
