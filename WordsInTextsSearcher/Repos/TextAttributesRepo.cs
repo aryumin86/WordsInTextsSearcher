@@ -25,10 +25,13 @@ namespace WordsInTextsSearcher.Repos
 
         public void DeleteTextAttribute(int id)
         {
+            var bindinds = _searcherDbContext.TextAttrBindings.Where(x => x.AttributeId == id);
+            _searcherDbContext.TextAttrBindings.RemoveRange(bindinds);
             var taVals = _searcherDbContext.TextAttributeValues.Where(x => x.TextAttributeId == id);
             _searcherDbContext.TextAttributeValues.RemoveRange(taVals);
             var ta = _searcherDbContext.TextAttributes.Find(id);
             _searcherDbContext.TextAttributes.Remove(ta);
+
             _searcherDbContext.SaveChanges();
         }
 

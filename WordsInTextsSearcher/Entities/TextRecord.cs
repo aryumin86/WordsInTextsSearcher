@@ -19,6 +19,6 @@ namespace WordsInTextsSearcher.Entities
         public int? TagId { get; set; }
         public int ProjectId { get; set; }
         public Project Project { get; set; }
-        public IEnumerable<TextAttribute> TextAttributes { get; set; }
+        public IEnumerable<TextAttrBinding> TextAttrBindings { get; set; }
     }
 }

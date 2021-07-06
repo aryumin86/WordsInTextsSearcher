@@ -2,8 +2,10 @@
 
 @using WordsInTextsSearcher.Data
 @using WordsInTextsSearcher.Entities
+@using System.Linq
 
 @inject TextRecordsService textRecordsService
+@inject TextAttrBindingsService textAttrBindingsService
 @inject TagsService tagsService
 @inject TextAttributesService textAttributesService
 @inject ProjectsService projectsService
@@ -48,8 +50,8 @@
                             <tr>
                                 <td>@attr.Name</td>
                                 <td>
-                                    <select class="form-control">
-                                        <option>Не выбрано</option>
+                                    <select class="form-control" @bind="currentTextAttrBindings[attr.Id]">
+                                        <option value="0">Не выбрано</option>
                                         @foreach(var av in attr.Values)
                                         {
                                             <option value="@av.Id">@av.Value</option>
@@ -112,6 +114,7 @@
     [Inject] private WordsInTextsSearcher.Data.TextRecordsService _recordsService { get; set; }
     [Inject] private ProjectsService _projectsService { get; set; }
     [Inject] private TextAttributesService _textAttributesService { get; set; }
+    [Inject] private TextAttrBindingsService _textAttrBindingsService { get; set; }
 
     private IEnumerable<TextRecord> textRecords;
     private IEnumerable<Tag> allTextTags;
@@ -120,6 +123,8 @@
     private string getCreateUpdateButtonText() =>
         currentTextRecord.Id == 0 ? "создать" : "обновить";
     private bool hideTextRecordsTable() => !textRecords.Any();
+    private Dictionary<int, int> currentTextAttrBindings
+        = new Dictionary<int, int>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,12 +133,16 @@
             navigationManager.NavigateTo("/projects");
         }
 
-        textRecords = 
+        textRecords =
             await textRecordsService.GetTextRecords(x => x.ProjectId == projectsService.CurrentProject.Id);
-        allTextTags = 
+        allTextTags =
             await tagsService.GetTags(x => x.ProjectId == projectsService.CurrentProject.Id);
-        allTextAttributes = 
+        allTextAttributes =
             await textAttributesService.GetTextAttributesAsync(x => x.ProjectId == projectsService.CurrentProject.Id);
+        
+        var allAttrs = await textAttributesService
+            .GetTextAttributesAsync(x => x.ProjectId == _projectsService.CurrentProject.Id);
+        currentTextAttrBindings = allAttrs.ToDictionary(x => x.Id, _ => 0);
     }
 
     private async Task CreateTextRecord()
@@ -173,6 +182,46 @@
     private async Task SetTextRecordAsCurrent(TextRecord textRecord)
     {
         currentTextRecord = textRecord;
+
+        currentTextAttrBindings = textRecord.TextAttrBindings
+            .ToDictionary(x => x.AttributeId, x => x.AttributeValueId);
+
+        foreach (var a in allTextAttributes)
+        {
+            if (!currentTextAttrBindings.ContainsKey(a.Id))
+            {
+                currentTextAttrBindings[a.Id] = 0;
+            }
+        }
+
         await Task.CompletedTask;
     }
+
+    //private async Task AttrBindingSelected(TextAttributeValue textAttributeValue,
+    //    TextAttribute textAttribute)
+    //{
+    //    var binding = currentTextAttrBindings
+    //        .FirstOrDefault(x => x.AttributeId == textAttributeValue.TextAttributeId);
+    //    if (binding != null)
+    //    {
+    //        binding.TextAttributeValue = textAttributeValue;
+    //        binding.AttributeValueId = textAttributeValue.Id;
+    //    }
+    //    else
+    //    {
+    //        binding = new TextAttrBinding
+    //        {
+    //            AttributeId = textAttribute.Id,
+    //            TextAttribute = textAttribute,
+    //            AttributeValueId = textAttributeValue.Id,
+    //            TextAttributeValue = textAttributeValue,
+    //            TextRecord = currentTextRecord,
+    //            TextRecordId = currentTextRecord.Id
+    //        };
+
+    //        currentTextAttrBindings.Add(binding);
+    //    }
+
+    //    await Task.CompletedTask;
+    //}
 }

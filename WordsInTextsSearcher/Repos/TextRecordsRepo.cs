@@ -40,7 +40,9 @@ namespace WordsInTextsSearcher.Repos
 
         public IEnumerable<TextRecord> GetTextRecords(Expression<Func<TextRecord, bool>> predicate)
         {
-            return _dbContext.TextRecords.Include(t => t.Tag).Where(predicate);
+            return _dbContext.TextRecords.Include(t => t.Tag)
+                .Include(x => x.TextAttrBindings)
+                .Where(predicate);
         }
 
         public TextRecord UpdateTextRecord(TextRecord textRecord)
