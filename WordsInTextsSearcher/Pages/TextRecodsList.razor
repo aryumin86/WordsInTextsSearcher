@@ -45,6 +45,24 @@
                             <th scope="col">Атрибут</th>
                             <th scope="col">Значение</th>
                         </tr>
+                        <tr>
+                            <td>
+                                <select>
+                                    @foreach(var a in allTextAttributes)
+                                    {
+                                        <option>@a.Name</option>
+                                    }
+                                </select>
+                            </td>
+                            <td>
+                                <select>
+                                    <option>знач1</option>
+                                    <option>знач2</option>
+                                    <option>знач3</option>
+                                </select>
+                                <span class="oi oi-plus" aria-hidden="true"></span>
+                            </td>
+                        </tr>
                         @foreach (var attr in allTextAttributes.Where(x => x.Values != null && x.Values.Any()))
                         {
                             <tr>
@@ -119,6 +137,7 @@
     private IEnumerable<TextRecord> textRecords;
     private IEnumerable<Tag> allTextTags;
     private IEnumerable<TextAttribute> allTextAttributes;
+    private IEnumerable<TextAttributeValue> allTextAttributeValues;
     private TextRecord currentTextRecord = new TextRecord { };
     private string getCreateUpdateButtonText() =>
         currentTextRecord.Id == 0 ? "создать" : "обновить";
@@ -139,9 +158,12 @@
             await tagsService.GetTags(x => x.ProjectId == projectsService.CurrentProject.Id);
         allTextAttributes =
             await textAttributesService.GetTextAttributesAsync(x => x.ProjectId == projectsService.CurrentProject.Id);
-        
+        var allTextAttributesIds = allTextAttributes.Select(x => x.Id);
+        allTextAttributeValues =
+            await textAttributesService.GetTextAttributeValues(x => allTextAttributesIds.Contains(x.TextAttributeId));
+
         var allAttrs = await textAttributesService
-            .GetTextAttributesAsync(x => x.ProjectId == _projectsService.CurrentProject.Id);
+        .GetTextAttributesAsync(x => x.ProjectId == _projectsService.CurrentProject.Id);
         currentTextAttrBindings = allAttrs.ToDictionary(x => x.Id, _ => 0);
     }
 
@@ -163,7 +185,31 @@
 
     private async Task UpdateTextRecord(TextRecord textRecord)
     {
-        await _recordsService.UpdateTextRecord(textRecord);
+        textRecord.TextAttrBindings = currentTextAttrBindings.Select(x =>
+        {
+            return new TextAttrBinding
+            {
+                AttributeId = x.Key,
+                TextAttribute = null,
+                AttributeValueId = x.Value,
+                TextAttributeValue = null,
+                TextRecordId = currentTextRecord.Id,
+                TextRecord = null
+            };
+        }).ToList<TextAttrBinding>();
+
+        var existingBindings =
+            await _textAttrBindingsService.GetTextAttrBindings(x => x.TextRecordId == projectsService.CurrentProject.Id);
+        foreach(var b in existingBindings)
+        {
+            await _textAttrBindingsService.DeleteTextAttrBinding(b.Id);
+        }
+
+        foreach(var tb in textRecord.TextAttrBindings.Where(b => b.AttributeValueId > 0).ToList())
+        {
+            await _textAttrBindingsService.CreateTextAttrBinding(tb);
+        }
+
         await ClearForm();
     }
 
@@ -196,32 +242,4 @@
 
         await Task.CompletedTask;
     }
-
-    //private async Task AttrBindingSelected(TextAttributeValue textAttributeValue,
-    //    TextAttribute textAttribute)
-    //{
-    //    var binding = currentTextAttrBindings
-    //        .FirstOrDefault(x => x.AttributeId == textAttributeValue.TextAttributeId);
-    //    if (binding != null)
-    //    {
-    //        binding.TextAttributeValue = textAttributeValue;
-    //        binding.AttributeValueId = textAttributeValue.Id;
-    //    }
-    //    else
-    //    {
-    //        binding = new TextAttrBinding
-    //        {
-    //            AttributeId = textAttribute.Id,
-    //            TextAttribute = textAttribute,
-    //            AttributeValueId = textAttributeValue.Id,
-    //            TextAttributeValue = textAttributeValue,
-    //            TextRecord = currentTextRecord,
-    //            TextRecordId = currentTextRecord.Id
-    //        };
-
-    //        currentTextAttrBindings.Add(binding);
-    //    }
-
-    //    await Task.CompletedTask;
-    //}
 }
