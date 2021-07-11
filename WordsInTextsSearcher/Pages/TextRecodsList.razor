@@ -192,8 +192,8 @@
 
     }
 
-    //private bool newBindingButtonIsDisabled() => _newTextAttrBinding == null || _newTextAttrBinding.AttributeId == 0
-    //        || _newTextAttrBinding.AttributeValueId == 0;
+    private bool newBindingButtonIsDisabled() => _newTextAttrBinding == null || _newTextAttrBinding.AttributeId == 0
+            || _newTextAttrBinding.AttributeValueId == 0;
 
 
     private async Task CreateTextRecord()
