@@ -45,39 +45,62 @@
                             <th scope="col">Атрибут</th>
                             <th scope="col">Значение</th>
                         </tr>
-                        <tr>
-                            <td>
-                                <select>
-                                    @foreach(var a in allTextAttributes)
-                                    {
-                                        <option>@a.Name</option>
-                                    }
-                                </select>
-                            </td>
-                            <td>
-                                <select>
-                                    <option>знач1</option>
-                                    <option>знач2</option>
-                                    <option>знач3</option>
-                                </select>
-                                <span class="oi oi-plus" aria-hidden="true"></span>
-                            </td>
-                        </tr>
-                        @foreach (var attr in allTextAttributes.Where(x => x.Values != null && x.Values.Any()))
+                        @if (currentTextRecord != null && currentTextRecord.Id > 0)
                         {
                             <tr>
-                                <td>@attr.Name</td>
                                 <td>
-                                    <select class="form-control" @bind="currentTextAttrBindings[attr.Id]">
-                                        <option value="0">Не выбрано</option>
-                                        @foreach(var av in attr.Values)
+                                    <select class="form-control" @bind="_newTextAttrBinding.AttributeId">
+                                        <option value="0">не выбрано</option>
+                                        @foreach (var a in allTextAttributes.Where(x => !currentTextRecord.TextAttrBindings.Select(y => y.AttributeId).Contains(x.Id)))
                                         {
-                                            <option value="@av.Id">@av.Value</option>
+                                            <option value=@a.Id>@a.Name</option>
                                         }
                                     </select>
                                 </td>
+                                <td>
+                                    <div class="d-flex flex-row align-items: justify-content-center">
+                                        <select class="form-control" @bind="_newTextAttrBinding.AttributeValueId">
+                                            <option value="0">не выбрано</option>
+                                            @foreach (var av in allTextAttributeValues.Where(x => x.TextAttributeId == _newTextAttrBinding.AttributeId))
+                                            {
+                                                <option value=@av.Id>@av.Value</option>
+                                            }
+                                        </select>
+                                        <span class="oi oi-plus ml-2 icon-button"
+                                              data -toggle="tooltip" data-placement="top" title="Создать привязку"
+                                              @onclick="@(async () => await AddNewTextAttrBinding())"
+                                              aria-hidden="true">
+                                        </span>
+                                    </div>
+                                </td>
                             </tr>
                         }
+
+                        @if (currentTextRecord != null && currentTextRecord.TextAttrBindings != null)
+                        {
+                            @foreach (var binding in currentTextRecord.TextAttrBindings)
+                            {
+                                <tr>
+                                    <td>@binding.TextAttribute.Name</td>
+                                    <td>
+                                        <div class="d-flex flex-row align-items: justify-content-center">
+                                            <select class="form-control" @bind="binding.TextAttributeValue.Id">
+                                                @foreach (var attrValue in allTextAttributes.First(a => a.Id == binding.AttributeId).Values)
+                                                {
+                                                    <option value="@attrValue.Id">@attrValue.Value</option>
+                                                }
+                                            </select>
+                                            <span class="oi oi-delete ml-2 icon-button"
+                                                  data-toggle="tooltip" data-placement="top" title="Удалить привязку"
+                                                  @onclick="@(async () => await RemoveTextAttrBinding(binding.Id))"
+                                                  aria-hidden="true">
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+
                     </table>
                 </div>
             </div>
@@ -142,8 +165,11 @@
     private string getCreateUpdateButtonText() =>
         currentTextRecord.Id == 0 ? "создать" : "обновить";
     private bool hideTextRecordsTable() => !textRecords.Any();
-    private Dictionary<int, int> currentTextAttrBindings
-        = new Dictionary<int, int>();
+    private IEnumerable<TextAttrBinding> currentTextAttrBindings;
+    private TextAttrBinding _newTextAttrBinding = new TextAttrBinding
+    {
+        AttributeId = 0
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -152,8 +178,10 @@
             navigationManager.NavigateTo("/projects");
         }
 
+        currentTextAttrBindings = new List<TextAttrBinding>();
+
         textRecords =
-            await textRecordsService.GetTextRecords(x => x.ProjectId == projectsService.CurrentProject.Id);
+        await textRecordsService.GetTextRecords(x => x.ProjectId == projectsService.CurrentProject.Id);
         allTextTags =
             await tagsService.GetTags(x => x.ProjectId == projectsService.CurrentProject.Id);
         allTextAttributes =
@@ -162,10 +190,11 @@
         allTextAttributeValues =
             await textAttributesService.GetTextAttributeValues(x => allTextAttributesIds.Contains(x.TextAttributeId));
 
-        var allAttrs = await textAttributesService
-        .GetTextAttributesAsync(x => x.ProjectId == _projectsService.CurrentProject.Id);
-        currentTextAttrBindings = allAttrs.ToDictionary(x => x.Id, _ => 0);
     }
+
+    //private bool newBindingButtonIsDisabled() => _newTextAttrBinding == null || _newTextAttrBinding.AttributeId == 0
+    //        || _newTextAttrBinding.AttributeValueId == 0;
+
 
     private async Task CreateTextRecord()
     {
@@ -185,30 +214,13 @@
 
     private async Task UpdateTextRecord(TextRecord textRecord)
     {
-        textRecord.TextAttrBindings = currentTextAttrBindings.Select(x =>
-        {
-            return new TextAttrBinding
-            {
-                AttributeId = x.Key,
-                TextAttribute = null,
-                AttributeValueId = x.Value,
-                TextAttributeValue = null,
-                TextRecordId = currentTextRecord.Id,
-                TextRecord = null
-            };
-        }).ToList<TextAttrBinding>();
-
+        var allProjectTextRecords =
+            (await _recordsService.GetTextRecords(x => x.ProjectId == projectsService.CurrentProject.Id))
+            .Select(x => x.Id);
         var existingBindings =
-            await _textAttrBindingsService.GetTextAttrBindings(x => x.TextRecordId == projectsService.CurrentProject.Id);
-        foreach(var b in existingBindings)
-        {
-            await _textAttrBindingsService.DeleteTextAttrBinding(b.Id);
-        }
+        await _textAttrBindingsService.GetTextAttrBindings(x => allProjectTextRecords.Contains(x.TextRecordId));
 
-        foreach(var tb in textRecord.TextAttrBindings.Where(b => b.AttributeValueId > 0).ToList())
-        {
-            await _textAttrBindingsService.CreateTextAttrBinding(tb);
-        }
+        await _recordsService.UpdateTextRecord(currentTextRecord);
 
         await ClearForm();
     }
@@ -229,17 +241,42 @@
     {
         currentTextRecord = textRecord;
 
-        currentTextAttrBindings = textRecord.TextAttrBindings
-            .ToDictionary(x => x.AttributeId, x => x.AttributeValueId);
-
-        foreach (var a in allTextAttributes)
-        {
-            if (!currentTextAttrBindings.ContainsKey(a.Id))
-            {
-                currentTextAttrBindings[a.Id] = 0;
-            }
-        }
+        currentTextAttrBindings =
+            (await _textAttrBindingsService.GetTextAttrBindings(x => x.TextRecordId == currentTextRecord.Id))
+            .ToList();
 
         await Task.CompletedTask;
+    }
+
+    private async Task SetDefaultNewTextAttrBinding()
+    {
+        _newTextAttrBinding = new TextAttrBinding { AttributeId = 0 };
+        await Task.CompletedTask;
+    }
+
+    private async Task CreateTextAttributeBinding()
+    {
+        _newTextAttrBinding.TextRecord = currentTextRecord;
+        _newTextAttrBinding.TextRecordId = currentTextRecord.Id;
+
+        var binding = await _textAttrBindingsService.CreateTextAttrBinding(_newTextAttrBinding);
+        await SetDefaultNewTextAttrBinding();
+    }
+
+    private async Task AddNewTextAttrBinding()
+    {
+        _newTextAttrBinding.TextRecordId = currentTextRecord.Id;
+        await _textAttrBindingsService.CreateTextAttrBinding(_newTextAttrBinding);
+        _newTextAttrBinding = new TextAttrBinding { AttributeId = 0 };
+    }
+
+    private async Task RemoveTextAttrBinding(int bindingId)
+    {
+        await _textAttrBindingsService.DeleteTextAttrBinding(bindingId);
+    }
+
+    private async Task TextAttrValueChanged(TextAttrBinding binding)
+    {
+        await _textAttrBindingsService.UpdateTextAttrBinding(binding);
     }
 }

@@ -29,3 +29,12 @@ textarea {
     max-height: 16rem;
     min-height: 16rem;
 }
+
+.icon-button:hover {
+    cursor: pointer;
+}
+
+.not-clickable {
+    pointer-events: none;
+    cursor: not-allowed;
+}
