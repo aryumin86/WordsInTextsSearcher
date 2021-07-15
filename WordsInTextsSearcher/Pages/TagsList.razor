@@ -88,7 +88,7 @@
             navigationManager.NavigateTo("/projects");
         }
 
-        allTextTags = await tagsService.GetTags(_ => true);
+        allTextTags = await tagsService.GetTags(x => x.ProjectId == projectsService.CurrentProject.Id);
     }
 
     private async Task CreateTag()
@@ -109,7 +109,8 @@
 
     private async Task DeleteTag(int id)
     {
-        var textsWithThisTag = await _textRecordsService.GetTextRecords(t => t.TagId == id);
+        var textsWithThisTag = await _textRecordsService
+            .GetTextRecords(t => t.TagId == id && t.ProjectId == projectsService.CurrentProject.Id);
         foreach (var t in textsWithThisTag.ToList())
         {
             t.Tag = null;

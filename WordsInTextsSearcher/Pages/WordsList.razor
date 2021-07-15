@@ -3,6 +3,7 @@
 @using WordsInTextsSearcher.Entities
 
 @inject WordsService wordsService
+@inject ProjectsService projectsService
 @inject WordFormsService wordFormsService
 @inject NavigationManager navigationManager
 
@@ -127,7 +128,7 @@
                 navigationManager.NavigateTo("/projects");
             }
 
-            allWords = await wordsService.GetWords(x => true);
+            allWords = await wordsService.GetWords(x => x.ProjectId == projectsService.CurrentProject.Id);
         }
 
         private async Task ClearWordForm()

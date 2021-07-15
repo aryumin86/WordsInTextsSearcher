@@ -94,7 +94,7 @@
             navigationManager.NavigateTo("/projects");
         }
 
-        allTextTags = await tagsService.GetTags(_ => true);
+        allTextTags = await tagsService.GetTags(x => x.ProjectId == projectsService.CurrentProject.Id);
     }
 
     private bool showSpinner = false;
@@ -137,9 +137,9 @@
 
     private async Task<(IEnumerable<TextRecord>, IEnumerable<Word>)> GetTermTextData()
     {
-        var texts = await _recordsService.GetTextRecords(t => selectedTextTag.Id == 0 ? true : t.Tag.Id == selectedTextTag.Id);
+        var texts = await _recordsService.GetTextRecords(t => t.ProjectId == projectsService.CurrentProject.Id && (selectedTextTag.Id == 0 ? true : t.Tag.Id == selectedTextTag.Id));
         texts = texts.ToList();
-        var words = await _wordsService.GetWords(x => true);
+        var words = await _wordsService.GetWords(x => x.ProjectId == projectsService.CurrentProject.Id);
         words = words.ToList();
         _wordsNames = words.ToDictionary(w => w.Id, w => w.Text);
         return (texts, words);
