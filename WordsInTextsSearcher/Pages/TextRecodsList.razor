@@ -47,7 +47,7 @@
                         </tr>
                         @if (currentTextRecord != null && currentTextRecord.Id > 0)
                         {
-                            <tr>
+                            <tr class="active-row">
                                 <td>
                                     <select class="form-control" @bind="_newTextAttrBinding.AttributeId">
                                         <option value="0">не выбрано</option>
@@ -66,11 +66,15 @@
                                                 <option value=@av.Id>@av.Value</option>
                                             }
                                         </select>
-                                        <span class="oi oi-plus ml-2 icon-button"
-                                              data -toggle="tooltip" data-placement="top" title="Создать привязку"
-                                              @onclick="@(async () => await AddNewTextAttrBinding())"
-                                              aria-hidden="true">
-                                        </span>
+                                        @if (_newTextAttrBinding != null && _newTextAttrBinding.AttributeId > 0 && _newTextAttrBinding.AttributeValueId > 0)
+                                        {
+                                            <span class="oi oi-plus ml-2 mt-2 icon-button"
+                                                  data-toggle="tooltip" data-placement="top" title="Создать привязку"
+                                                  @onclick="@(async() => await AddNewTextAttrBinding())"
+                                                  aria-hidden="true">
+                                            </span>
+                                        }
+
                                     </div>
                                 </td>
                             </tr>
@@ -84,13 +88,14 @@
                                     <td>@binding.TextAttribute.Name</td>
                                     <td>
                                         <div class="d-flex flex-row align-items: justify-content-center">
-                                            <select class="form-control" @bind="binding.TextAttributeValue.Id">
+                                            <select class="form-control" value="@binding.TextAttributeValue.Id"
+                                                    @onchange="@TextAttrValueChanged">
                                                 @foreach (var attrValue in allTextAttributes.First(a => a.Id == binding.AttributeId).Values)
                                                 {
                                                     <option value="@attrValue.Id">@attrValue.Value</option>
                                                 }
                                             </select>
-                                            <span class="oi oi-delete ml-2 icon-button"
+                                            <span class="oi oi-delete ml-2 mt-2 icon-button"
                                                   data-toggle="tooltip" data-placement="top" title="Удалить привязку"
                                                   @onclick="@(async () => await RemoveTextAttrBinding(binding.Id))"
                                                   aria-hidden="true">
@@ -178,10 +183,8 @@
             navigationManager.NavigateTo("/projects");
         }
 
-        currentTextAttrBindings = new List<TextAttrBinding>();
-
         textRecords =
-        await textRecordsService.GetTextRecords(x => x.ProjectId == projectsService.CurrentProject.Id);
+            await textRecordsService.GetTextRecords(x => x.ProjectId == projectsService.CurrentProject.Id);
         allTextTags =
             await tagsService.GetTags(x => x.ProjectId == projectsService.CurrentProject.Id);
         allTextAttributes =
@@ -210,6 +213,7 @@
             await _recordsService.CreateTextRecord(currentTextRecord);
         }
         await ClearForm();
+        StateHasChanged();
     }
 
     private async Task UpdateTextRecord(TextRecord textRecord)
@@ -242,8 +246,8 @@
         currentTextRecord = textRecord;
 
         currentTextAttrBindings =
-            (await _textAttrBindingsService.GetTextAttrBindings(x => x.TextRecordId == currentTextRecord.Id))
-            .ToList();
+            await _textAttrBindingsService.GetTextAttrBindings(x => x.TextRecordId == currentTextRecord.Id);
+
 
         await Task.CompletedTask;
     }
@@ -254,20 +258,14 @@
         await Task.CompletedTask;
     }
 
-    private async Task CreateTextAttributeBinding()
+    private async Task AddNewTextAttrBinding()
     {
         _newTextAttrBinding.TextRecord = currentTextRecord;
         _newTextAttrBinding.TextRecordId = currentTextRecord.Id;
-
+        _newTextAttrBinding.TextAttribute = allTextAttributes.First(x => x.Id == _newTextAttrBinding.AttributeId);
+        _newTextAttrBinding.TextAttributeValue = allTextAttributeValues.First(x => x.Id == _newTextAttrBinding.AttributeValueId);
         var binding = await _textAttrBindingsService.CreateTextAttrBinding(_newTextAttrBinding);
         await SetDefaultNewTextAttrBinding();
-    }
-
-    private async Task AddNewTextAttrBinding()
-    {
-        _newTextAttrBinding.TextRecordId = currentTextRecord.Id;
-        await _textAttrBindingsService.CreateTextAttrBinding(_newTextAttrBinding);
-        _newTextAttrBinding = new TextAttrBinding { AttributeId = 0 };
     }
 
     private async Task RemoveTextAttrBinding(int bindingId)
@@ -275,8 +273,13 @@
         await _textAttrBindingsService.DeleteTextAttrBinding(bindingId);
     }
 
-    private async Task TextAttrValueChanged(TextAttrBinding binding)
+    private async Task TextAttrValueChanged(ChangeEventArgs args)
     {
+        int attrValId = int.Parse(args.Value.ToString());
+        var attrVal = allTextAttributeValues.First(x => x.Id == attrValId);
+        var binding = currentTextAttrBindings.First(x => x.TextAttribute.Id == attrVal.TextAttributeId);
+        binding.TextAttributeValue = attrVal;
+        binding.AttributeValueId = attrVal.Id;
         await _textAttrBindingsService.UpdateTextAttrBinding(binding);
     }
 }

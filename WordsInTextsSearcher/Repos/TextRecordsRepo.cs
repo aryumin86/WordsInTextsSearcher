@@ -42,6 +42,9 @@ namespace WordsInTextsSearcher.Repos
         {
             return _dbContext.TextRecords.Include(t => t.Tag)
                 .Include(x => x.TextAttrBindings)
+                .ThenInclude(x => x.TextAttribute)
+                .Include(x => x.TextAttrBindings)
+                .ThenInclude(x => x.TextAttributeValue)
                 .Where(predicate);
         }
 
