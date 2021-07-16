@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31402.337
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordsInTextsSearcher", "WordsInTextsSearcher\WordsInTextsSearcher.csproj", "{3A8AEBBD-78EB-4087-9369-7AE539744282}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extractor", "Extractor\Extractor.csproj", "{66E72629-3214-4C16-A3A9-5568EF42089D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Extractor", "Extractor\Extractor.csproj", "{66E72629-3214-4C16-A3A9-5568EF42089D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

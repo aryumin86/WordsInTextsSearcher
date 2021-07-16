@@ -195,8 +195,9 @@
 
     }
 
-    private bool newBindingButtonIsDisabled() => _newTextAttrBinding == null || _newTextAttrBinding.AttributeId == 0
-            || _newTextAttrBinding.AttributeValueId == 0;
+    private bool newBindingButtonIsDisabled() => 
+        _newTextAttrBinding == null || _newTextAttrBinding.AttributeId == 0
+        || _newTextAttrBinding.AttributeValueId == 0;
 
 
     private async Task CreateTextRecord()
@@ -222,7 +223,7 @@
             (await _recordsService.GetTextRecords(x => x.ProjectId == projectsService.CurrentProject.Id))
             .Select(x => x.Id);
         var existingBindings =
-        await _textAttrBindingsService.GetTextAttrBindings(x => allProjectTextRecords.Contains(x.TextRecordId));
+            await _textAttrBindingsService.GetTextAttrBindings(x => allProjectTextRecords.Contains(x.TextRecordId));
 
         await _recordsService.UpdateTextRecord(currentTextRecord);
 

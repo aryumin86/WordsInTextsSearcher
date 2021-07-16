@@ -53,6 +53,7 @@ namespace WordsInTextsSearcher
             services.AddScoped<ITextAttributeValuesRepo, TextAttributeValuesRepo>();
             services.AddScoped<ITextAttrBindingsRepo, TextAttrBindingsRepo>();
             services.AddScoped<IProjectsRepo, ProjectsRepo>();
+            services.AddScoped<IUsersRepository, UsersRepository>();
 
             services.AddRazorPages();
             services.AddServerSideBlazor();
@@ -64,6 +65,7 @@ namespace WordsInTextsSearcher
             services.AddScoped<TextAttributesService>();
             services.AddScoped<TextAttrBindingsService>();
             services.AddScoped<ProjectsService>();
+            services.AddScoped<UsersService>();
 
             services.AddSignalR(hubOptions =>
             {
