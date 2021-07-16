@@ -11,7 +11,9 @@ namespace WordsInTextsSearcher.Helpers
 {
     public class ExportHelper
     {
-        public IWorkbook CreateTermTextMatrixInXLSX(IEnumerable<TextTermsStat> textTermsStats, IEnumerable<Word> words)
+        public IWorkbook CreateTermTextMatrixInXLSX(
+            IEnumerable<TextTermsStat> textTermsStats, IEnumerable<Word> words,
+            IEnumerable<TextAttribute> attrs, IEnumerable<TextAttrBinding> bindings)
         {
             IWorkbook workbook = new XSSFWorkbook();
             ISheet sheet1 = workbook.CreateSheet("term-text-matrix");
@@ -40,6 +42,15 @@ namespace WordsInTextsSearcher.Helpers
                 var wordNameHeader = headersRow.CreateCell(++colNumber);
                 wordNameHeader.SetCellValue(word.Text);
             }
+
+            foreach(var attr in attrs)
+            {
+                var attrNameHeader = headersRow.CreateCell(++colNumber);
+                attrNameHeader.SetCellValue(attr.Name);
+            }
+
+            var tagNameHeader = headersRow.CreateCell(++colNumber);
+            tagNameHeader.SetCellValue("Тег");
 
             var textRermsStatsArr = textTermsStats.ToArray();
             for (int i = 0; i < textTermsStats.Count(); i++)

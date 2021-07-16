@@ -74,16 +74,16 @@
 
 @code {
 
-    [Inject]
-    private TextRecordsService _recordsService { get; set; }
-    [Inject]
-    private WordsService _wordsService { get; set; }
-    [Inject]
-    private StatsService _statsService { get; set; }
-    [Inject]
-    private NavigationManager _navManager { get; set; }
-    [Inject]
-    private IJSRuntime _js { get; set; }
+        [Inject] private TextRecordsService _recordsService { get; set; }
+        [Inject] private WordsService _wordsService { get; set; }
+        [Inject] private StatsService _statsService { get; set; }
+        [Inject] private TextAttributesService _textAttributesService { get; set; }
+        [Inject] private TextAttrBindingsService _textAttrBindingsService { get; set; }
+
+        [Inject]
+        private NavigationManager _navManager { get; set; }
+        [Inject]
+        private IJSRuntime _js { get; set; }
 
     private IEnumerable<Tag> allTextTags;
 
@@ -107,9 +107,10 @@
         _termsStats = null;
         showSpinner = true;
         await Task.Delay(TimeSpan.FromMilliseconds(100));
-        var (texts, words) = await GetTermTextData();
+        var (texts, words, attrs, bindinds) = await GetTermTextData();
         var termTextStats = _statsService.GetTextTermsStats(texts, words);
-        var termTextMatrixWorkBook = new ExportHelper().CreateTermTextMatrixInXLSX(termTextStats, words);
+        var termTextMatrixWorkBook = 
+            new ExportHelper().CreateTermTextMatrixInXLSX(termTextStats, words, attrs, bindinds);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try
         {
@@ -129,19 +130,24 @@
         showSpinner = true;
         await Task.Delay(TimeSpan.FromMilliseconds(100));
 
-        var (texts, words) = await GetTermTextData();
+        var (texts, words, attrs, bindinds) = await GetTermTextData();
         _termsStats = _statsService.GetTextTermsStats(texts, words);
 
         showSpinner = false;
     }
 
-    private async Task<(IEnumerable<TextRecord>, IEnumerable<Word>)> GetTermTextData()
+    private async Task<(IEnumerable<TextRecord>, IEnumerable<Word>, IEnumerable<TextAttribute>, IEnumerable<TextAttrBinding>)> GetTermTextData()
     {
         var texts = await _recordsService.GetTextRecords(t => t.ProjectId == projectsService.CurrentProject.Id && (selectedTextTag.Id == 0 ? true : t.Tag.Id == selectedTextTag.Id));
         texts = texts.ToList();
         var words = await _wordsService.GetWords(x => x.ProjectId == projectsService.CurrentProject.Id);
         words = words.ToList();
         _wordsNames = words.ToDictionary(w => w.Id, w => w.Text);
-        return (texts, words);
+        var textAttributes =
+            await _textAttributesService.GetTextAttributesAsync(x => x.ProjectId == projectsService.CurrentProject.Id);
+        var projectTextsIds = texts.Select(x => x.Id);
+        var attrBindings =
+            await _textAttrBindingsService.GetTextAttrBindings(x => projectTextsIds.Contains(x.TextRecordId));
+        return (texts, words, textAttributes, attrBindings);
     }
 }
