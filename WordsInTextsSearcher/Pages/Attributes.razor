@@ -7,6 +7,7 @@
 @using System.Linq;
 
 @inject ProjectsService projectsService
+@inject UsersService usersService
 @inject TextAttributesService textAttributesService;
 @inject NavigationManager navigationManager
 
@@ -123,12 +124,17 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if(usersService.CurrentUser == null)
+        {
+            navigationManager.NavigateTo("/login");
+        }
+
         if (projectsService.CurrentProject == null)
         {
             navigationManager.NavigateTo("/projects");
         }
 
-        allTextAttributes = 
+        allTextAttributes =
             await _textAttributesService.GetTextAttributesAsync(x => x.ProjectId == projectsService.CurrentProject.Id);
     }
 
@@ -140,8 +146,10 @@
 
     private async Task ClearTextAttributeValuesForm()
     {
-        currentTextAttributeValue = new TextAttributeValue() {
-            TextAttribute = currentTextAttribute, TextAttributeId = currentTextAttribute.Id
+        currentTextAttributeValue = new TextAttributeValue()
+        {
+            TextAttribute = currentTextAttribute,
+            TextAttributeId = currentTextAttribute.Id
         };
         await Task.CompletedTask;
     }

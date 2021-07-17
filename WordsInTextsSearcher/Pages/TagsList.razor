@@ -7,6 +7,7 @@
 
 @inject TagsService tagsService
 @inject ProjectsService projectsService
+@inject UsersService usersService
 @inject NavigationManager navigationManager
 
 <h3>Теги текстов</h3>
@@ -83,6 +84,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (usersService.CurrentUser == null)
+        {
+            navigationManager.NavigateTo("/login");
+        }
+
         if (projectsService.CurrentProject == null)
         {
             navigationManager.NavigateTo("/projects");

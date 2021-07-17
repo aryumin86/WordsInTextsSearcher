@@ -7,6 +7,7 @@
 
 @inject TagsService tagsService
 @inject ProjectsService projectsService
+@inject UsersService usersService
 @inject NavigationManager navigationManager
 
 <h3>Статистика</h3>
@@ -74,21 +75,26 @@
 
 @code {
 
-        [Inject] private TextRecordsService _recordsService { get; set; }
-        [Inject] private WordsService _wordsService { get; set; }
-        [Inject] private StatsService _statsService { get; set; }
-        [Inject] private TextAttributesService _textAttributesService { get; set; }
-        [Inject] private TextAttrBindingsService _textAttrBindingsService { get; set; }
+    [Inject] private TextRecordsService _recordsService { get; set; }
+    [Inject] private WordsService _wordsService { get; set; }
+    [Inject] private StatsService _statsService { get; set; }
+    [Inject] private TextAttributesService _textAttributesService { get; set; }
+    [Inject] private TextAttrBindingsService _textAttrBindingsService { get; set; }
 
-        [Inject]
-        private NavigationManager _navManager { get; set; }
-        [Inject]
-        private IJSRuntime _js { get; set; }
+    [Inject]
+    private NavigationManager _navManager { get; set; }
+    [Inject]
+    private IJSRuntime _js { get; set; }
 
     private IEnumerable<Tag> allTextTags;
 
     protected override async Task OnInitializedAsync()
     {
+        if (usersService.CurrentUser == null)
+        {
+            navigationManager.NavigateTo("/login");
+        }
+
         if (projectsService.CurrentProject == null)
         {
             navigationManager.NavigateTo("/projects");
@@ -109,7 +115,7 @@
         await Task.Delay(TimeSpan.FromMilliseconds(100));
         var (texts, words, attrs, bindinds) = await GetTermTextData();
         var termTextStats = _statsService.GetTextTermsStats(texts, words);
-        var termTextMatrixWorkBook = 
+        var termTextMatrixWorkBook =
             new ExportHelper().CreateTermTextMatrixInXLSX(termTextStats, words, attrs, bindinds);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try

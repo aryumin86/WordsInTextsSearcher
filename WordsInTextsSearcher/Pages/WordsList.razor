@@ -4,6 +4,7 @@
 
 @inject WordsService wordsService
 @inject ProjectsService projectsService
+@inject UsersService usersService
 @inject WordFormsService wordFormsService
 @inject NavigationManager navigationManager
 
@@ -15,31 +16,79 @@
                 <button class="btn btn-outline-primary"
                         @onclick="@(async () => await CreateWord())">
                     @getCreateUpdateWordButtonText()
-                    </button>
-                </div>
-                <input type="text" class="form-control" @bind="currentWord.Text" />
-                <button class="btn btn-outline-warning ml-1" @onclick="ClearWordForm">очистить</button>
+                </button>
             </div>
-            <div class="mt-2" hidden="@hideWordsTable()">
-                <table class="table table-striped words-tab">
-                    <tr>
-                        <th scope="col">Id</th>
-                        <th scope="col">Форм</th>
-                        <th scope="col">Слово</th>
-                        <th scope="col"></th>
+            <input type="text" class="form-control" @bind="currentWord.Text" />
+            <button class="btn btn-outline-warning ml-1" @onclick="ClearWordForm">очистить</button>
+        </div>
+        <div class="mt-2" hidden="@hideWordsTable()">
+            <table class="table table-striped words-tab">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Форм</th>
+                    <th scope="col">Слово</th>
+                    <th scope="col"></th>
+                </tr>
+                @foreach (var word in allWords.OrderBy(w => w.Text))
+                {
+                    <tr class="@(currentWord.Id == word.Id ? "active-row" : "")">
+                        <th scope="row">@word.Id</th>
+                        <th scope="row">@word.WordForms.Count()</th>
+                        <td class="wordTextTd"
+                            @onclick="@(async() => await SetWordAsCurrent(word))">
+                            @word.Text
+                        </td>
+                        <td>
+                            <div class="d-flex flex-row">
+                                <button @onclick="@(async() => await DeleteWord(word.Id))"
+                                        class="btn btn-outline-danger">
+                                    Удалить
+                                </button>
+                            </div>
+                        </td>
                     </tr>
-                    @foreach (var word in allWords.OrderBy(w => w.Text))
+                }
+            </table>
+        </div>
+    </div>
+    <div class="col col-6">
+        <h3>Словоформы</h3>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="btn btn-outline-primary"
+                        disabled="@(currentWord == null || currentWord.Id == 0)"
+                        @onclick="@(async () => await CreateWordForm())">
+                    @getCreateUpdateWordFormButtonText()
+                </button>
+            </div>
+            <input type="text" class="form-control"
+                   disabled="@(currentWord == null || currentWord.Id == 0)"
+                   @bind="currentWordForm.Text" />
+            <button class="btn btn-outline-warning ml-1"
+                    @onclick="ClearWordFormForm">
+                очистить
+            </button>
+        </div>
+        <div class="mt-2" hidden="@hideWordFormsTable()">
+            <table class="table table-striped word-forms-tab">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Слово</th>
+                    <th scope="col"></th>
+                </tr>
+                @if (currentWord != null && currentWord.WordForms != null)
+                {
+                    @foreach (var wordForm in currentWord.WordForms.OrderBy(wf => wf.Text))
                     {
-                        <tr class="@(currentWord.Id == word.Id ? "active-row" : "")">
-                            <th scope="row">@word.Id</th>
-                            <th scope="row">@word.WordForms.Count()</th>
+                        <tr class="@(currentWordForm.Id == wordForm.Id ? "active-row" : "")">
+                            <th scope="row">@wordForm.Id</th>
                             <td class="wordTextTd"
-                                @onclick="@(async() => await SetWordAsCurrent(word))">
-                                @word.Text
+                                @onclick="@(async() => await SetWordFormAsCurrent(wordForm))">
+                                @wordForm.Text
                             </td>
                             <td>
                                 <div class="d-flex flex-row">
-                                    <button @onclick="@(async() => await DeleteWord(word.Id))"
+                                    <button @onclick="@(async() => await DeleteWordForm(wordForm.Id))"
                                             class="btn btn-outline-danger">
                                         Удалить
                                     </button>
@@ -47,168 +96,125 @@
                             </td>
                         </tr>
                     }
-                </table>
-            </div>
-        </div>
-        <div class="col col-6">
-            <h3>Словоформы</h3>
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <button class="btn btn-outline-primary"
-                            disabled="@(currentWord == null || currentWord.Id == 0)"
-                            @onclick="@(async () => await CreateWordForm())">
-                        @getCreateUpdateWordFormButtonText()
-                    </button>
-                </div>
-                <input type="text" class="form-control"
-                       disabled="@(currentWord == null || currentWord.Id == 0)"
-                       @bind="currentWordForm.Text" />
-                <button class="btn btn-outline-warning ml-1"
-                        @onclick="ClearWordFormForm">
-                    очистить
-                </button>
-            </div>
-            <div class="mt-2" hidden="@hideWordFormsTable()">
-                <table class="table table-striped word-forms-tab">
-                    <tr>
-                        <th scope="col">Id</th>
-                        <th scope="col">Слово</th>
-                        <th scope="col"></th>
-                    </tr>
-                    @if (currentWord != null && currentWord.WordForms != null)
-                    {
-                        @foreach (var wordForm in currentWord.WordForms.OrderBy(wf => wf.Text))
-                        {
-                            <tr class="@(currentWordForm.Id == wordForm.Id ? "active-row" : "")">
-                                <th scope="row">@wordForm.Id</th>
-                                <td class="wordTextTd"
-                                    @onclick="@(async() => await SetWordFormAsCurrent(wordForm))">
-                                    @wordForm.Text
-                                </td>
-                                <td>
-                                    <div class="d-flex flex-row">
-                                        <button @onclick="@(async() => await DeleteWordForm(wordForm.Id))"
-                                                class="btn btn-outline-danger">
-                                            Удалить
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    }
-                </table>
-            </div>
+                }
+            </table>
         </div>
     </div>
+</div>
 
 
 
-    @code {
+@code {
 
-        [Inject] private WordsInTextsSearcher.Data.WordsService _wordsService { get; set; }
-        [Inject] private WordFormsService _wordFormsService { get; set; }
-        [Inject] private ProjectsService _projectsService { get; set; }
+    [Inject] private WordsInTextsSearcher.Data.WordsService _wordsService { get; set; }
+    [Inject] private WordFormsService _wordFormsService { get; set; }
+    [Inject] private ProjectsService _projectsService { get; set; }
 
-        private Word currentWord = new Word();
-        private WordForm currentWordForm = new WordForm();
-        private IEnumerable<Word> allWords;
+    private Word currentWord = new Word();
+    private WordForm currentWordForm = new WordForm();
+    private IEnumerable<Word> allWords;
 
-        private bool hideWordsTable() => !allWords.Any();
-        private bool hideWordFormsTable() =>
-            currentWord == null || currentWord.WordForms == null || !currentWord.WordForms.Any();
-        private string getCreateUpdateWordButtonText() =>
-            currentWord.Id == 0 ? "создать" : "обновить";
-        private string getCreateUpdateWordFormButtonText() =>
-            currentWordForm.Id == 0 ? "создать" : "обновить";
+    private bool hideWordsTable() => !allWords.Any();
+    private bool hideWordFormsTable() =>
+        currentWord == null || currentWord.WordForms == null || !currentWord.WordForms.Any();
+    private string getCreateUpdateWordButtonText() =>
+        currentWord.Id == 0 ? "создать" : "обновить";
+    private string getCreateUpdateWordFormButtonText() =>
+        currentWordForm.Id == 0 ? "создать" : "обновить";
 
-        protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        if (usersService.CurrentUser == null)
         {
-            if(_projectsService.CurrentProject == null)
-            {
-                navigationManager.NavigateTo("/projects");
-            }
-
-            allWords = await wordsService.GetWords(x => x.ProjectId == projectsService.CurrentProject.Id);
+            navigationManager.NavigateTo("/login");
         }
 
-        private async Task ClearWordForm()
+        if (_projectsService.CurrentProject == null)
         {
-            await Task.CompletedTask;
-            currentWord = new Word();
+            navigationManager.NavigateTo("/projects");
         }
 
-        private async Task ClearWordFormForm()
-        {
-            currentWordForm = new WordForm() { Word = currentWord, WordId = currentWord.Id };
-            await Task.CompletedTask;
-        }
+        allWords = await wordsService.GetWords(x => x.ProjectId == projectsService.CurrentProject.Id);
+    }
 
-        private async Task CreateWord()
-        {
-            if (currentWord.Id != 0)
-            {
-                await _wordsService.UpdateWord(currentWord);
-            }
-            else
-            {
-                currentWord.WhenCreated = DateTime.Now;
-                currentWord.Project = _projectsService.CurrentProject;
-                currentWord.ProjectId = _projectsService.CurrentProject.Id;
-                await _wordsService.CreateWord(currentWord);
-            }
-            await ClearWordForm();
+    private async Task ClearWordForm()
+    {
+        await Task.CompletedTask;
+        currentWord = new Word();
+    }
 
-        }
+    private async Task ClearWordFormForm()
+    {
+        currentWordForm = new WordForm() { Word = currentWord, WordId = currentWord.Id };
+        await Task.CompletedTask;
+    }
 
-        private async Task DeleteWord(int id)
-        {
-            await _wordsService.DeleteWord(id);
-            await ClearWordForm();
-        }
-
-        private async Task UpdateWord()
+    private async Task CreateWord()
+    {
+        if (currentWord.Id != 0)
         {
             await _wordsService.UpdateWord(currentWord);
         }
-
-        private async Task CreateWordForm()
+        else
         {
-            currentWordForm.Word = currentWord;
-            currentWordForm.WordId = currentWord.Id;
-
-            if (currentWordForm.Id != 0)
-            {
-                await _wordFormsService.UpdateWordForm(currentWordForm);
-            }
-            else
-            {
-                await _wordFormsService.CreateWordForm(currentWordForm);
-            }
-
-            await ClearWordFormForm();
+            currentWord.WhenCreated = DateTime.Now;
+            currentWord.Project = _projectsService.CurrentProject;
+            currentWord.ProjectId = _projectsService.CurrentProject.Id;
+            await _wordsService.CreateWord(currentWord);
         }
+        await ClearWordForm();
 
-        private async Task UpdateWordForm(WordForm wordForm)
-        {
-            await _wordFormsService.UpdateWordForm(wordForm);
-        }
-
-        private async Task DeleteWordForm(int id)
-        {
-            await _wordFormsService.DeleteWordForm(id);
-            await ClearWordFormForm();
-            currentWord.WordForms = currentWord.WordForms.Where(wf => wf.Id != id).ToList();
-        }
-
-        private async Task SetWordAsCurrent(Word word)
-        {
-            currentWord = word;
-            await ClearWordFormForm();
-        }
-
-        private async Task SetWordFormAsCurrent(WordForm wordForm)
-        {
-            currentWordForm = wordForm;
-            await Task.CompletedTask;
-        }
     }
+
+    private async Task DeleteWord(int id)
+    {
+        await _wordsService.DeleteWord(id);
+        await ClearWordForm();
+    }
+
+    private async Task UpdateWord()
+    {
+        await _wordsService.UpdateWord(currentWord);
+    }
+
+    private async Task CreateWordForm()
+    {
+        currentWordForm.Word = currentWord;
+        currentWordForm.WordId = currentWord.Id;
+
+        if (currentWordForm.Id != 0)
+        {
+            await _wordFormsService.UpdateWordForm(currentWordForm);
+        }
+        else
+        {
+            await _wordFormsService.CreateWordForm(currentWordForm);
+        }
+
+        await ClearWordFormForm();
+    }
+
+    private async Task UpdateWordForm(WordForm wordForm)
+    {
+        await _wordFormsService.UpdateWordForm(wordForm);
+    }
+
+    private async Task DeleteWordForm(int id)
+    {
+        await _wordFormsService.DeleteWordForm(id);
+        await ClearWordFormForm();
+        currentWord.WordForms = currentWord.WordForms.Where(wf => wf.Id != id).ToList();
+    }
+
+    private async Task SetWordAsCurrent(Word word)
+    {
+        currentWord = word;
+        await ClearWordFormForm();
+    }
+
+    private async Task SetWordFormAsCurrent(WordForm wordForm)
+    {
+        currentWordForm = wordForm;
+        await Task.CompletedTask;
+    }
+}
