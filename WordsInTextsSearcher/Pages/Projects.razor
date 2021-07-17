@@ -8,6 +8,8 @@
 @using System.Linq;
 
 @inject ProjectsService projectsService
+@inject UsersService usersService
+@inject NavigationManager navigationManager
 
 @implements IDisposable
 
@@ -60,7 +62,7 @@
             else
             {
                 <h5 style="margin-top: .5rem" class="text-primary">
-            Текущий проект: @_projectsService.CurrentProject.Title (id: @_projectsService.CurrentProject.Id)
+                    Текущий проект: @_projectsService.CurrentProject.Title (id: @_projectsService.CurrentProject.Id)
                 </h5>
             }
         </div>
@@ -75,6 +77,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (usersService.CurrentUser == null)
+        {
+            navigationManager.NavigateTo("/login");
+        }
+
         allProjects = await _projectsService.GetProjects(_ => true);
     }
 
@@ -88,7 +95,7 @@
     }
 
     private string getCreateUpdateProjectButtonText() =>
-    currentProject.Id == 0 ? "создать" : "обновить";
+        currentProject.Id == 0 ? "создать" : "обновить";
 
     private bool hideProjectsTable() => !allProjects.Any();
 

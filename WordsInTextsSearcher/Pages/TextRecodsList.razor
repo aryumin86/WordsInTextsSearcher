@@ -9,6 +9,7 @@
 @inject TagsService tagsService
 @inject TextAttributesService textAttributesService
 @inject ProjectsService projectsService
+@inject UsersService usersService
 @inject NavigationManager navigationManager
 
 <h3>Тексты</h3>
@@ -24,9 +25,10 @@
                 <div class="form-group d-flex flex-row align-items-baseline">
                     <label style="white-space: nowrap;" for="tagsSelect" class="mr-2">Тег</label>
                     <select id="tagsSelect" class="form-control" @bind="currentTextRecord.TagId">
+                        <option value="">Не выбран</option>
                         @foreach (var t in allTextTags)
                         {
-                            <option value="@(t.Id)">@t.Text</option>
+                            <option value=@t.Id>@t.Text</option>
                         }
                     </select>
                 </div>
@@ -45,7 +47,8 @@
                             <th scope="col">Атрибут</th>
                             <th scope="col">Значение</th>
                         </tr>
-                        @if (currentTextRecord != null && currentTextRecord.Id > 0)
+                        @if (currentTextRecord != null && currentTextRecord.Id > 0 
+                            && currentTextRecord.TextAttrBindings.Count < allTextAttributes.Count())
                         {
                             <tr class="active-row">
                                 <td>
@@ -178,6 +181,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (usersService.CurrentUser == null)
+        {
+            navigationManager.NavigateTo("/login");
+        }
+
         if (projectsService.CurrentProject == null)
         {
             navigationManager.NavigateTo("/projects");
@@ -195,7 +203,7 @@
 
     }
 
-    private bool newBindingButtonIsDisabled() => 
+    private bool newBindingButtonIsDisabled() =>
         _newTextAttrBinding == null || _newTextAttrBinding.AttributeId == 0
         || _newTextAttrBinding.AttributeValueId == 0;
 

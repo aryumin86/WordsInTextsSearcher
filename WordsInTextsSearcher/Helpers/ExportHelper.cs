@@ -71,6 +71,22 @@ namespace WordsInTextsSearcher.Helpers
                     var wordInTextOccuerencesCountCell = row.CreateCell(++columnNumber);
                     wordInTextOccuerencesCountCell.SetCellValue(textRermsStatsArr[i].WordsCount[word.Id]);
                 }
+
+                foreach(var attr in attrs.ToList())
+                {
+                    var attrValueCell = row.CreateCell(++columnNumber);
+                    bindings = bindings.ToList();
+                    var binding = bindings
+                        .FirstOrDefault(b => b.TextRecordId == textRermsStatsArr[i].TextRecord.Id
+                        && b.AttributeId == attr.Id);
+                    if (binding != null)
+                    {                        
+                        attrValueCell.SetCellValue(binding.TextAttributeValue.Value);
+                    }
+                }
+
+                var textTagCell = row.CreateCell(++columnNumber);
+                textTagCell.SetCellValue(textRermsStatsArr[i].TextRecord.Tag?.Text);
             }
 
             return workbook;

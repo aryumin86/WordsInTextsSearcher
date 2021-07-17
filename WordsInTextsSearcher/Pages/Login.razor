@@ -1,33 +1,82 @@
 ﻿@page "/login"
 
+@using WordsInTextsSearcher.Data
+@using WordsInTextsSearcher.Entities
+@using System.Linq
+
+@inject NavigationManager navigationManager
+
 <div class="card mt-5 mx-auto" style="width:30rem;">
     <div class="card-header">
         Залогиниться
     </div>
     <div class="card-body">
-        <form>
-            <div class="form-group row">
-                <label for="login" class="col-3 col-form-label">Логин</label>
-                <div class="col-9">
-                    <input type="text" class="form-control" id="login">
-                </div>
+        <div class="form-group row">
+            <label for="login" class="col-3 col-form-label">Логин</label>
+            <div class="col-9">
+                <input type="text" @bind=_formUser.Login
+                       class="form-control" id="login">
             </div>
-            <div class="form-group row">
-                <label for="inputPassword" class="col-3 col-form-label">Пароль</label>
-                <div class="col-9">
-                    <input type="password" class="form-control" id="inputPassword">
-                </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-3 col-form-label">Пароль</label>
+            <div class="col-9">
+                <input type="password" @bind=_formUser.Password
+                       class="form-control" id="inputPassword">
             </div>
-            <div class="row">
-                <div class="col-12">
-                    <button class="btn btn-primary float-right">Войти</button>
-                </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                @if (_loginState != LoginState.INIT)
+                {
+                    <h4 class="mt-2">
+                        <span class="@(_loginState == LoginState.FAIED ? "badge badge-danger float-left" : "badge badge-success float-left")">@message</span>
+                    </h4>
+                }
             </div>
-        </form>
+            <div class="col-6">
+                <button class="btn btn-primary float-right"
+                        @onclick="@(async() => await TryLogin())">
+                    Войти
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
 
 @code {
 
+    private enum LoginState
+    {
+        INIT = 0,
+        SUCCESS = 1,
+        FAIED = 2
+    }
+
+    [Inject] private UsersService _usersService { get; set; }
+    private User _formUser = new User();
+    private string message;
+    private LoginState _loginState = LoginState.INIT;
+
+    private async Task TryLogin()
+    {
+        await Task.CompletedTask;
+
+        var user = _usersService.GetUser(_formUser.Login, _formUser.Password);
+        if (user != null)
+        {
+            _usersService.CurrentUser = user;
+            _loginState = LoginState.SUCCESS;
+            message = "Вы успешно вошли";
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            navigationManager.NavigateTo("/projects");
+        }
+        else
+        {
+            _loginState = LoginState.FAIED;
+            message = "Неправильный логин или пароль";
+        }
+    }
 }
