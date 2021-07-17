@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using log4net.Core;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +13,12 @@ namespace WordsInTextsSearcher.Repos
     public class ProjectsRepo : IProjectsRepo
     {
         private SearcherDbContext _searcherDbContext;
+        private ILogger<ProjectsRepo> _logger;
 
-        public ProjectsRepo(SearcherDbContext searcherDbContext)
+        public ProjectsRepo(SearcherDbContext searcherDbContext, ILogger<ProjectsRepo> logger)
         {
             _searcherDbContext = searcherDbContext;
+            _logger = logger;
         }
 
         public Project CreateProject(Project project)

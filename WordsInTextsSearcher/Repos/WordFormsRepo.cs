@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -11,11 +12,13 @@ namespace WordsInTextsSearcher.Repos
     {
         private SearcherDbContext _dbContext;
         private AppConf _appConf;
-
-        public WordFormsRepo(SearcherDbContext dbContext, AppConf appConf)
+        private ILogger<WordFormsRepo> _logger;
+        public WordFormsRepo(SearcherDbContext dbContext, AppConf appConf,
+            ILogger<WordFormsRepo> logger)
         {
             _dbContext = dbContext;
             _appConf = appConf;
+            _logger = logger;
         }
         public WordForm CreateWordForm(WordForm wordForm)
         {

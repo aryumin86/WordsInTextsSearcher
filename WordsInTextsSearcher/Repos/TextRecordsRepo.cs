@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,13 @@ namespace WordsInTextsSearcher.Repos
     {
         private SearcherDbContext _dbContext;
         private AppConf _appConf;
-
-        public TextRecordsRepo(SearcherDbContext dbContext, AppConf appConf)
+        private ILogger<TextRecordsRepo> _logger;
+        public TextRecordsRepo(SearcherDbContext dbContext, AppConf appConf,
+            ILogger<TextRecordsRepo> logger)
         {
             _dbContext = dbContext;
             _appConf = appConf;
+            _logger = logger;
         }
         public TextRecord CreateTextRecord(TextRecord textRecord)
         {

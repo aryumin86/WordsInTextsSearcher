@@ -1,3 +1,5 @@
+using log4net;
+using log4net.Config;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
@@ -6,9 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using WordsInTextsSearcher.Data;
 using WordsInTextsSearcher.Repos;
@@ -41,6 +47,17 @@ namespace WordsInTextsSearcher
 
             AppConf appConf = Configuration.GetSection("AppConf").Get<AppConf>();
             services.AddSingleton(appConf);
+
+            //string sourcesFolder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+            var location = System.Reflection.Assembly.GetEntryAssembly().Location;
+            var sourcesFolder = System.IO.Path.GetDirectoryName(location);
+
+            var logsRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            var logsFile = new FileInfo(sourcesFolder + Path.DirectorySeparatorChar + appConf.LogsFile);
+            XmlConfigurator.Configure(logsRepository, logsFile);
+            services.AddLogging(x =>
+                x.AddProvider(new Log4NetProvider(logsFile.FullName))
+            );
 
             services.AddDbContext<SearcherDbContext>(options =>
                 options.UseNpgsql(appConf.MainDbConnString));

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,12 @@ namespace WordsInTextsSearcher.Repos
     public class TextAttrBindingsRepo : ITextAttrBindingsRepo
     {
         private SearcherDbContext _searcherDbContext;
+        private ILogger<TextAttrBindingsRepo> _logger;
 
-        public TextAttrBindingsRepo(SearcherDbContext searcherDbContext)
+        public TextAttrBindingsRepo(SearcherDbContext searcherDbContext, ILogger<TextAttrBindingsRepo> logger)
         {
             _searcherDbContext = searcherDbContext;
+            _logger = logger;
         }
 
         public TextAttrBinding CreateTextAttrBinding(TextAttrBinding textAttrBinding)

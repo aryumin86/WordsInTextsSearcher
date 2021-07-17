@@ -10,5 +10,6 @@ namespace WordsInTextsSearcher
     {
         public string MainDbConnString { get; set; }
         public IEnumerable<User> Users { get; set; }
+        public string LogsFile { get; set; }
     }
 }

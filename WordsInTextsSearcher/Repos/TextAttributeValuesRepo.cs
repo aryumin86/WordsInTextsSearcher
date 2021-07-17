@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,10 +11,13 @@ namespace WordsInTextsSearcher.Repos
     public class TextAttributeValuesRepo : ITextAttributeValuesRepo
     {
         private SearcherDbContext _searcherDbContext;
+        private ILogger<TextAttributeValuesRepo> _logger;
 
-        public TextAttributeValuesRepo(SearcherDbContext searcherDbContext)
+        public TextAttributeValuesRepo(SearcherDbContext searcherDbContext, 
+            ILogger<TextAttributeValuesRepo> logger)
         {
             _searcherDbContext = searcherDbContext;
+            _logger = logger;
         }
 
         public TextAttributeValue CreateTextAttributeValue(TextAttributeValue textAttributeValue)

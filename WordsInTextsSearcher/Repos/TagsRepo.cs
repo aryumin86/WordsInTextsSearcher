@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -11,11 +12,13 @@ namespace WordsInTextsSearcher.Repos
     {
         private SearcherDbContext _dbContext;
         private AppConf _appConf;
+        private ILogger<TagsRepo> _logger;
 
-        public TagsRepo(SearcherDbContext ctx, AppConf appConf)
+        public TagsRepo(SearcherDbContext ctx, AppConf appConf, ILogger<TagsRepo> logger)
         {
             _dbContext = ctx;
             _appConf = appConf;
+            _logger = logger;
         }
 
         public Tag CreateTag(Tag tag)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,10 +10,11 @@ namespace WordsInTextsSearcher.Repos
     public class UsersRepository : IUsersRepository
     {
         private AppConf _appConf;
-
-        public UsersRepository(AppConf appConf)
+        private ILogger<UsersRepository> _logger;
+        public UsersRepository(AppConf appConf, ILogger<UsersRepository> logger)
         {
             _appConf = appConf;
+            _logger = logger;
         }
         public User GetUser(string login, string password)
         {
