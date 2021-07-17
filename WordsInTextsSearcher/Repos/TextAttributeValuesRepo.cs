@@ -24,14 +24,16 @@ namespace WordsInTextsSearcher.Repos
         {
             _searcherDbContext.TextAttributeValues.Add(textAttributeValue);
             _searcherDbContext.SaveChanges();
+            _logger.LogInformation($"Text attr value '{textAttributeValue.Value}' ({textAttributeValue.Id}) for text attr {textAttributeValue.TextAttributeId} created");
             return textAttributeValue;
         }
 
         public void DeleteTextAttributeValue(int id)
         {
-            var tav = _searcherDbContext.TextAttributeValues.Find(id);
+            var textAttributeValue = _searcherDbContext.TextAttributeValues.Find(id);            
+            _searcherDbContext.TextAttributeValues.Remove(textAttributeValue);
             _searcherDbContext.SaveChanges();
-            _searcherDbContext.TextAttributeValues.Remove(tav);
+            _logger.LogInformation($"Text attr value '{textAttributeValue.Value}' ({textAttributeValue.Id}) for text attr {textAttributeValue.TextAttributeId} removed");
         }
 
         public TextAttributeValue GetTextAttributeValue(int id)
@@ -48,6 +50,7 @@ namespace WordsInTextsSearcher.Repos
         {
             _searcherDbContext.TextAttributeValues.Update(textAttributeValue);
             _searcherDbContext.SaveChanges();
+            _logger.LogInformation($"Text attr value '{textAttributeValue.Value}' ({textAttributeValue.Id}) for text attr {textAttributeValue.TextAttributeId} updated");
             return textAttributeValue;
         }
     }

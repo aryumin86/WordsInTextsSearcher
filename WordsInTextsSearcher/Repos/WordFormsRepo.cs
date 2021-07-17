@@ -24,14 +24,16 @@ namespace WordsInTextsSearcher.Repos
         {
             _dbContext.WordForms.Add(wordForm);
             _dbContext.SaveChanges();
+            _logger.LogInformation($"Word form '{wordForm.Text}' ({wordForm.Id}) for word {wordForm.WordId} added");
             return wordForm;
         }
 
         public void DeleteWordForm(int id)
         {
             var wordForm = _dbContext.WordForms.Find(id);
-            _dbContext.Remove(wordForm);
+            _dbContext.Remove(wordForm);            
             _dbContext.SaveChanges();
+            _logger.LogInformation($"Word form '{wordForm.Text}' ({wordForm.Id}) for word {wordForm.WordId} deleted");
         }
 
         public WordForm GetWordForm(int wordFormId)
@@ -48,6 +50,7 @@ namespace WordsInTextsSearcher.Repos
         {
             _dbContext.WordForms.Update(wordForm);
             _dbContext.SaveChanges();
+            _logger.LogInformation($"Word form '{wordForm.Text}' ({wordForm.Id}) for word {wordForm.WordId} updated");
             return wordForm;
         }
     }

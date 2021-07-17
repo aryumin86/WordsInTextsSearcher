@@ -25,15 +25,16 @@ namespace WordsInTextsSearcher.Repos
         {
             _dbContext.TextRecords.Add(textRecord);
             _dbContext.SaveChanges();
+            _logger.LogInformation($"Text record  '{textRecord.Id}' created");
             return textRecord;
         }
-
         public void DeleteTextRecord(int id)
         {
             using var ctx = new SearcherDbContext(_appConf.MainDbConnString);
             var textRecord = ctx.TextRecords.Find(id);
             ctx.TextRecords.Remove(textRecord);
             ctx.SaveChanges();
+            _logger.LogInformation($"Text record  '{textRecord.Id}' removed");
         }
 
         public TextRecord GetTextRecord(int id)
@@ -55,6 +56,7 @@ namespace WordsInTextsSearcher.Repos
         {
             _dbContext.TextRecords.Update(textRecord);
             _dbContext.SaveChanges();
+            _logger.LogInformation($"Text record  '{textRecord.Id}' updated");
             return textRecord;
         }
     }

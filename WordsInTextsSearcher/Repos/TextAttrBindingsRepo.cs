@@ -24,14 +24,16 @@ namespace WordsInTextsSearcher.Repos
         {
             _searcherDbContext.TextAttrBindings.Add(textAttrBinding);
             _searcherDbContext.SaveChanges();
+            _logger.LogInformation($"Text attr binding {textAttrBinding.Id} for text {textAttrBinding.TextRecordId} and attr {textAttrBinding.AttributeId} created");
             return textAttrBinding;
         }
 
         public void DeleteTextAttrBinding(int id)
         {
-            var tab = _searcherDbContext.TextAttrBindings.Find(id);
-            _searcherDbContext.TextAttrBindings.Remove(tab);
+            var textAttrBinding = _searcherDbContext.TextAttrBindings.Find(id);
+            _searcherDbContext.TextAttrBindings.Remove(textAttrBinding);
             _searcherDbContext.SaveChanges();
+            _logger.LogInformation($"Text attr binding {textAttrBinding.Id} for text {textAttrBinding.TextRecordId} and attr {textAttrBinding.AttributeId} deleted");
         }
 
         public TextAttrBinding GetTextAttrBinding(int id)
@@ -52,6 +54,7 @@ namespace WordsInTextsSearcher.Repos
         {
             _searcherDbContext.TextAttrBindings.Update(textAttrBinding);
             _searcherDbContext.SaveChanges();
+            _logger.LogInformation($"Text attr binding {textAttrBinding.Id} for text {textAttrBinding.TextRecordId} and attr {textAttrBinding.AttributeId} updated");
             return textAttrBinding;
         }
     }

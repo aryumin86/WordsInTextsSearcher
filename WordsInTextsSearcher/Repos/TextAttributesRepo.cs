@@ -24,6 +24,7 @@ namespace WordsInTextsSearcher.Repos
         {
             _searcherDbContext.TextAttributes.Add(textAttribute);
             _searcherDbContext.SaveChanges();
+            _logger.LogInformation($"Text attr '{textAttribute.Name}' ({textAttribute.Id}) created");
             return textAttribute;
         }
 
@@ -33,9 +34,10 @@ namespace WordsInTextsSearcher.Repos
             _searcherDbContext.TextAttrBindings.RemoveRange(bindinds);
             var taVals = _searcherDbContext.TextAttributeValues.Where(x => x.TextAttributeId == id);
             _searcherDbContext.TextAttributeValues.RemoveRange(taVals);
-            var ta = _searcherDbContext.TextAttributes.Find(id);
-            _searcherDbContext.TextAttributes.Remove(ta);
+            var textAttribute = _searcherDbContext.TextAttributes.Find(id);
+            _searcherDbContext.TextAttributes.Remove(textAttribute);
 
+            _logger.LogInformation($"Text attr '{textAttribute.Name}' ({textAttribute.Id}) deleted");
             _searcherDbContext.SaveChanges();
         }
 
@@ -53,6 +55,7 @@ namespace WordsInTextsSearcher.Repos
         {
             _searcherDbContext.TextAttributes.Update(textAttribute);
             _searcherDbContext.SaveChanges();
+            _logger.LogInformation($"Text attr '{textAttribute.Name}' ({textAttribute.Id}) updated");
             return textAttribute;
         }
     }

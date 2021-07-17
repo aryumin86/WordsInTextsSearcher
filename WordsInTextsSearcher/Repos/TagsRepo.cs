@@ -25,6 +25,7 @@ namespace WordsInTextsSearcher.Repos
         {
             _dbContext.Tags.Add(tag);
             _dbContext.SaveChanges();
+            _logger.LogInformation($"Texts tag '{tag.Text}' ({tag.Id}) created");
             return tag;
         }
 
@@ -33,6 +34,7 @@ namespace WordsInTextsSearcher.Repos
             using var ctx = new SearcherDbContext(_appConf.MainDbConnString);
             var tag = ctx.Tags.Find(id);
             ctx.Tags.Remove(tag);
+            _logger.LogInformation($"Texts tag '{tag.Text}' ({tag.Id}) deleted");
             ctx.SaveChanges();
         }
 
@@ -50,6 +52,7 @@ namespace WordsInTextsSearcher.Repos
         {
             _dbContext.Tags.Update(tag);
             _dbContext.SaveChanges();
+            _logger.LogInformation($"Texts tag '{tag.Text}' ({tag.Id}) updated");
             return tag;
         }
     }
