@@ -11,7 +11,7 @@ namespace Extractor
     class Program
     {
         //private static Regex _namesRegex = new Regex(@"[А-Я](\s)*[.,](\s)*[А-Я](\s)*[.,](\s)*[А-Я][а-я]+");
-        private static Regex _namesRegex = new Regex(@"([А-Я][а-яё]?(\s)*[.,](\s)*)?(([А-Я][а-яё]?(\s)*[.,])|фон)(\s)*[А-Я][а-яёА-Я]+");
+        private static Regex _namesRegex = new Regex(@"([А-ЯA-Z][а-яёa-z]?(\s)*[.,](\s)*)?(([А-ЯA-Z][а-яёa-z]?(\s)*[.,])|фон)(\s)*[А-ЯA-Z][а-яёА-Яa-zA-Z]+");
         private static string sourcesDir = "sources";
         static void Main(string[] args)
         {
