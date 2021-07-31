@@ -15,26 +15,59 @@ namespace Extractor
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Started names extracting");
-
             var sources = GetFilesNames(sourcesDir);
             var namesData = new List<NamesData>();
-            foreach(var s in sources)
-            {
-                var text = ReadFile(s);
-                var names = ExtractNames(text);
-                var nd = new NamesData
-                {
-                    FileName = s.Split(Path.DirectorySeparatorChar).Last(),
-                    Names = names.Distinct()
-                };
 
-                namesData.Add(nd);
+            Console.WriteLine("Выбрать тип парсинга: 1. ФИО 2. Контекст целевой лексемы");
+            var key = Console.ReadLine();
+            switch ((ExtractionOperations)int.Parse(key.ToString()))
+            {
+                case ExtractionOperations.FullNames:
+                    foreach (var s in sources)
+                    {
+                        var text = ReadFile(s);
+                        var names = ExtractNames(text);
+                        var nd = new NamesData
+                        {
+                            FileName = s.Split(Path.DirectorySeparatorChar).Last(),
+                            Words = names.Distinct()
+                        };
+
+                        namesData.Add(nd);
+                        WriteDataToFile("fio_result.txt", namesData);
+                    }
+
+                    break;
+                case ExtractionOperations.ContextWords:
+                    var naiveWordsContextGetter = new NaiveWordsContextGetter();
+                    Console.WriteLine("Введите целевую лексему");
+                    var mainWord = Console.ReadLine();
+                    Console.WriteLine("Введите длину контекста (n слов вправо и влево)");
+                    var n = int.Parse(Console.ReadLine());
+                    Console.WriteLine("Введите минимальную длину искомых лексем контекста");
+                    var wordMinLength = int.Parse(Console.ReadLine());
+
+                    foreach (var s in sources)
+                    {
+                        var text = ReadFile(s);
+                        var words = naiveWordsContextGetter.GetWords(text, mainWord, n, 
+                            w => w.Length >= wordMinLength);
+                        var nd = new NamesData
+                        {
+                            FileName = s.Split(Path.DirectorySeparatorChar).Last(),
+                            Words = words.Distinct()
+                        };
+
+                        namesData.Add(nd);
+                        WriteDataToFile("words_context_result.txt", namesData);
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Операция не поддерживается");
+                    throw new InvalidOperationException();
             }
 
-            WriteNamesToFile("result.txt", namesData);
-
-            Console.WriteLine("Done...");
+            Console.WriteLine("Готово...");
             Console.ReadKey();
         }
 
@@ -53,14 +86,14 @@ namespace Extractor
             return Directory.GetFiles(folderName);
         }
 
-        static void WriteNamesToFile(string fileName, IEnumerable<NamesData> data)
+        static void WriteDataToFile(string fileName, IEnumerable<NamesData> data)
         {
             var sb = new StringBuilder();
             foreach(var d in data)
             {
                 sb.AppendLine("Файл: " + d.FileName);
                 sb.AppendLine();
-                foreach(var name in d.Names)
+                foreach(var name in d.Words)
                 {
                     sb.AppendLine(name);
                 }
@@ -74,6 +107,13 @@ namespace Extractor
     public class NamesData
     {
         public string FileName { get; set; }   
-        public IEnumerable<string> Names { get; set; }
+        public IEnumerable<string> Words { get; set; }
     }
+
+    enum ExtractionOperations
+    {
+        FullNames = 1,
+        ContextWords = 2
+    }
+
 }

@@ -48,7 +48,9 @@ namespace TextsProc.LIba.Parsing.DumbStaff
                 }
             }
 
-            return res.Where( w=> w.ToLowerInvariant() != mainWord.ToLowerInvariant()).Distinct();
+            return res
+                .Where(w=> w.ToLowerInvariant() != mainWord.ToLowerInvariant()).Distinct()
+                .Where(w => predicate(w));
         }
     }
 }
