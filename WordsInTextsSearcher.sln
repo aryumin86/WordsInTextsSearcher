@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordsInTextsSearcher", "Wor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Extractor", "Extractor\Extractor.csproj", "{66E72629-3214-4C16-A3A9-5568EF42089D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextsProc.LIba", "TextsProc.LIba\TextsProc.LIba.csproj", "{BB6A6003-861D-4CA6-96EB-B55AF212CEA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextsProc.LIbaTests", "TextsProc.LIbaTests\TextsProc.LIbaTests.csproj", "{CDEF90F6-F94D-43C7-AD09-25F74E7D1780}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{66E72629-3214-4C16-A3A9-5568EF42089D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66E72629-3214-4C16-A3A9-5568EF42089D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66E72629-3214-4C16-A3A9-5568EF42089D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB6A6003-861D-4CA6-96EB-B55AF212CEA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB6A6003-861D-4CA6-96EB-B55AF212CEA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB6A6003-861D-4CA6-96EB-B55AF212CEA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB6A6003-861D-4CA6-96EB-B55AF212CEA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDEF90F6-F94D-43C7-AD09-25F74E7D1780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDEF90F6-F94D-43C7-AD09-25F74E7D1780}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDEF90F6-F94D-43C7-AD09-25F74E7D1780}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDEF90F6-F94D-43C7-AD09-25F74E7D1780}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

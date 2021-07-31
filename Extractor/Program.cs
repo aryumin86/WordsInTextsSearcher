@@ -5,14 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using TextsProc.LIba.Parsing.DumbStaff;
 
 namespace Extractor
 {
     class Program
     {
-        //private static Regex _namesRegex = new Regex(@"[А-Я](\s)*[.,](\s)*[А-Я](\s)*[.,](\s)*[А-Я][а-я]+");
-        private static Regex _namesRegex = new Regex(@"([А-Я][а-яё]?(\s)*[.,](\s)*)?(([А-Я][а-яё]?(\s)*[.,])|фон)(\s)*[А-Я][а-яёА-Я]+");
         private static string sourcesDir = "sources";
+
         static void Main(string[] args)
         {
             Console.WriteLine("Started names extracting");
@@ -45,7 +45,7 @@ namespace Extractor
 
         static IEnumerable<string> ExtractNames(string text)
         {
-            return _namesRegex.Matches(text).Select(x => x.ToString());
+            return new NaiveNamesExtractor().GetNames(text);
         }
 
         static IEnumerable<string> GetFilesNames(string folderName)
