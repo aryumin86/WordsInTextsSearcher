@@ -11,7 +11,7 @@ namespace TextsProc.LIba.Parsing.DumbStaff
         private readonly IEnumerable<Regex> _namesRegexes = new List<Regex>()
         {
             new Regex(@"([А-Я][а-яё]?(\s)*[.,](\s)*)?(([А-Я][а-яё]?(\s)*[.,])|фон)(\s)*[А-Я][а-яёА-Я]+(-[А-Я][а-яёА-Я]+)?"),
-            new Regex(@"[А-Я][а-яёА-Я]+(-[А-Я][а-яёА-Я]+)?(\s)*([А-Я][а-яё]?(\s)*[.,](\s)*)?(([А-Я][а-яё]?(\s)*[.,]))")
+            //new Regex(@"[А-Я][а-яёА-Я]+(-[А-Я][а-яёА-Я]+)?(\s)*([А-Я][а-яё]?(\s)*[.,](\s)*)?(([А-Я][а-яё]?(\s)*[.,]))")
         };
         public IEnumerable<string> GetNames(string input)
         {

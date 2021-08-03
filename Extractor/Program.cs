@@ -15,6 +15,7 @@ namespace Extractor
 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             var sources = GetFilesNames(sourcesDir);
             var namesData = new List<NamesData>();
 
