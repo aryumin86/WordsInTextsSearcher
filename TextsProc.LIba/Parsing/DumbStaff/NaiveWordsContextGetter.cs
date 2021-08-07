@@ -32,7 +32,7 @@ namespace TextsProc.LIba.Parsing.DumbStaff
             for(int i = 0; i < allWords.Length; i++)
             {
                 currentWord = allWords[i];
-                if (currentWord.ToLowerInvariant() != mainWord.ToLowerInvariant())
+                if (!string.Equals(currentWord, mainWord, StringComparison.InvariantCultureIgnoreCase))
                     continue;
 
                 int paces = n + 1;
@@ -49,7 +49,8 @@ namespace TextsProc.LIba.Parsing.DumbStaff
             }
 
             return res
-                .Where(w=> w.ToLowerInvariant() != mainWord.ToLowerInvariant()).Distinct()
+                .Where(w=> !string.Equals(w, mainWord, StringComparison.InvariantCultureIgnoreCase))
+                .Select(x => x.ToLowerInvariant()).Distinct()
                 .Where(w => predicate(w));
         }
     }
