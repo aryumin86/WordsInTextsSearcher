@@ -26,6 +26,8 @@ namespace TextsProc.LIba.Parsing.DumbStaff
         /// <returns></returns>
         public IEnumerable<string> GetWords(string input, string mainWord, int n, Func<string, bool> predicate)
         {
+            mainWord = mainWord.Trim();
+
             var res = new List<string>();
             var allWords = input.Split(_delimeters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToArray();
             string currentWord = string.Empty;
