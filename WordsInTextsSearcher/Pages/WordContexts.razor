@@ -1,0 +1,111 @@
+﻿@page "/wordcontexts"
+
+@using WordsInTextsSearcher.Data
+@using WordsInTextsSearcher.Entities
+@using TextsProc.LIba.Parsing.DumbStaff;
+
+@inject WordsService wordsService
+@inject ProjectsService projectsService
+@inject UsersService usersService
+@inject WordFormsService wordFormsService
+@inject NavigationManager navigationManager
+
+<div class="row">
+    <div class="col-6">
+        <div class="form-group">
+            <input type="text" class="form-control" id="wordInp" @bind="mainWord"
+                   aria-describedby="help" placeholder="слово для поиска контекстов">
+            <small id="help" class="form-text text-muted">Пока можно ввести только одну словоформу.</small>
+        </div>
+    </div>
+    <div class="col-6">
+        <button class="btn btn-outline-primary" @onclick="@(async() => await ShowContexts())">
+            Показать контексты
+        </button>
+        <button class="btn btn-outline-primary" @onclick="@(async() => await ExportFios())">
+            Экспортировать контексты
+        </button>
+    </div>
+    <table class="table table-striped table-hover mt-1" hidden="@(contextsDatas.Count() == 0)">
+        <thead>
+            <tr>
+                <td>Текст</td>
+                <td>Слово</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cData in contextsDatas.Where(x => x.Words.Any()))
+            {
+                @foreach (var word in cData.Words)
+                {
+                    <tr>
+                        <td>id: @cData.TextRecord.Id : @cData.TextRecord.Title</td>
+                        <td>@word</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Inject] private ProjectsService _projectsService { get; set; }
+    [Inject] private TextRecordsService _textRecordsService { get; set; }
+
+    private IEnumerable<ContextData> contextsDatas = new List<ContextData>();
+    private string mainWord = string.Empty;
+    private int minWordLength = 4;
+    private int contextLeftRightRange = 3;
+
+    private async Task<IEnumerable<TextRecord>> GetTextRecords()
+    {
+        return await _textRecordsService.GetTextRecords(t =>
+            t.ProjectId == _projectsService.CurrentProject.Id);
+    }
+
+    private class ContextData
+    {
+        public TextRecord TextRecord { get; set; }
+        public IEnumerable<string> Words { get; set; }
+    }
+
+    private IEnumerable<ContextData> GetContextsDatas(IEnumerable<TextRecord> textRecords)
+    {
+        var res = new List<ContextData>();
+        var naiveWordsContextGetter = new NaiveWordsContextGetter();
+        foreach (var r in textRecords)
+        {
+            var names = naiveWordsContextGetter.GetWords(r.Text, mainWord, 
+                contextLeftRightRange, w => w.Length >= minWordLength).Distinct();
+            res.Add(new ContextData { TextRecord = r, Words = names });
+        }
+
+        return res;
+    }
+
+    private async Task ShowContexts()
+    {
+        var records = await GetTextRecords();
+        contextsDatas = GetContextsDatas(records);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (usersService.CurrentUser == null)
+        {
+            navigationManager.NavigateTo("/login");
+        }
+
+        if (projectsService.CurrentProject == null)
+        {
+            navigationManager.NavigateTo("/projects");
+        }
+
+        await Task.CompletedTask;
+    }
+
+    private async Task ExportFios()
+    {
+        await Task.CompletedTask;
+    }
+}

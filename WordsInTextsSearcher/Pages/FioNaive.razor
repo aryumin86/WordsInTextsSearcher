@@ -1,0 +1,100 @@
+﻿@page "/fionaive"
+@using WordsInTextsSearcher.Data
+@using WordsInTextsSearcher.Entities
+@using TextsProc.LIba.Parsing.DumbStaff;
+
+@inject WordsService wordsService
+@inject ProjectsService projectsService
+@inject UsersService usersService
+@inject WordFormsService wordFormsService
+@inject NavigationManager navigationManager
+
+<div class="row">
+    <div class="col-12">
+        <button class="btn btn-outline-primary" @onclick="@(async() => await ShowFios())">
+            Показать ФИО
+        </button>
+        <button class="btn btn-outline-primary" @onclick="@(async() => await ExportFios())">
+            Экспортировать ФИО
+        </button>
+    </div>
+    <table class="table table-striped table-hover mt-1" hidden="@(fioDatas.Count() == 0)">
+        <thead>
+            <tr>
+                <td>Текст</td>
+                <td>ФИО</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var fData in @fioDatas)
+            {
+                @foreach (var fio in fData.Names)
+                {
+                    <tr>
+                        <td>@fData.TextRecord.Id : @fData.TextRecord.Title</td>
+                        <td>@fio</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+
+    [Inject] private ProjectsService _projectsService { get; set; }
+    [Inject] private TextRecordsService _textRecordsService { get; set; }
+
+    private IEnumerable<FioData> fioDatas = new List<FioData>();
+
+    private async Task<IEnumerable<TextRecord>> GetTextRecords()
+    {
+        return await _textRecordsService.GetTextRecords(t =>
+            t.ProjectId == _projectsService.CurrentProject.Id);
+    }
+
+    private class FioData
+    {
+        public TextRecord TextRecord { get; set; }
+        public IEnumerable<string> Names { get; set; }
+    }
+
+    private IEnumerable<FioData> GetFioDatas(IEnumerable<TextRecord> textRecords)
+    {
+        var res = new List<FioData>();
+        var naiveNamesExtractor = new NaiveNamesExtractor();
+        foreach (var r in textRecords)
+        {
+            var names = naiveNamesExtractor.GetNames(r.Text).Distinct();
+            res.Add(new FioData { TextRecord = r, Names = names });
+        }
+
+        return res;
+    }
+
+    private async Task ShowFios()
+    {
+        var records = await GetTextRecords();
+        fioDatas = GetFioDatas(records);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (usersService.CurrentUser == null)
+        {
+            navigationManager.NavigateTo("/login");
+        }
+
+        if (projectsService.CurrentProject == null)
+        {
+            navigationManager.NavigateTo("/projects");
+        }
+
+        await Task.CompletedTask;
+    }
+
+    private async Task ExportFios()
+    {
+        await Task.CompletedTask;
+    }
+}

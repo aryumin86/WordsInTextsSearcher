@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordsInTextsSearcher", "Wor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Extractor", "Extractor\Extractor.csproj", "{66E72629-3214-4C16-A3A9-5568EF42089D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextsProc.LIba", "TextsProc.LIba\TextsProc.LIba.csproj", "{BB6A6003-861D-4CA6-96EB-B55AF212CEA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TextsProc.LIba", "TextsProc.LIba\TextsProc.LIba.csproj", "{BB6A6003-861D-4CA6-96EB-B55AF212CEA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextsProc.LIbaTests", "TextsProc.LIbaTests\TextsProc.LIbaTests.csproj", "{CDEF90F6-F94D-43C7-AD09-25F74E7D1780}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TextsProc.LIbaTests", "TextsProc.LIbaTests\TextsProc.LIbaTests.csproj", "{CDEF90F6-F94D-43C7-AD09-25F74E7D1780}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -13,12 +13,13 @@
         <h3>Словарь</h3>
         <div class="input-group">
             <div class="input-group-prepend">
-                <button class="btn btn-outline-primary"
+                <button class="btn btn-outline-primary" disabled="@(createUpdateButtonIsDisabled)"
                         @onclick="@(async () => await CreateWord())">
                     @getCreateUpdateWordButtonText()
                 </button>
             </div>
-            <input type="text" class="form-control" @bind="currentWord.Text" />
+            <input type="text" class="form-control" @onkeyup="@(async () => await currentWordTextChanged())"
+                   @bind="currentWord.Text" />
             <button class="btn btn-outline-warning ml-1" @onclick="ClearWordForm">очистить</button>
         </div>
         <div class="mt-2" hidden="@hideWordsTable()">
@@ -35,12 +36,12 @@
                         <th scope="row">@word.Id</th>
                         <th scope="row">@word.WordForms.Count()</th>
                         <td class="wordTextTd"
-                            @onclick="@(async() => await SetWordAsCurrent(word))">
+                            @onclick="@(async () => await SetWordAsCurrent(word))">
                             @word.Text
                         </td>
                         <td>
                             <div class="d-flex flex-row">
-                                <button @onclick="@(async() => await DeleteWord(word.Id))"
+                                <button @onclick="@(async () => await DeleteWord(word.Id))"
                                         class="btn btn-outline-danger">
                                     Удалить
                                 </button>
@@ -83,12 +84,12 @@
                         <tr class="@(currentWordForm.Id == wordForm.Id ? "active-row" : "")">
                             <th scope="row">@wordForm.Id</th>
                             <td class="wordTextTd"
-                                @onclick="@(async() => await SetWordFormAsCurrent(wordForm))">
+                                @onclick="@(async () => await SetWordFormAsCurrent(wordForm))">
                                 @wordForm.Text
                             </td>
                             <td>
                                 <div class="d-flex flex-row">
-                                    <button @onclick="@(async() => await DeleteWordForm(wordForm.Id))"
+                                    <button @onclick="@(async () => await DeleteWordForm(wordForm.Id))"
                                             class="btn btn-outline-danger">
                                         Удалить
                                     </button>
@@ -113,6 +114,14 @@
     private Word currentWord = new Word();
     private WordForm currentWordForm = new WordForm();
     private IEnumerable<Word> allWords;
+
+    private bool createUpdateButtonIsDisabled = true;
+    private async Task currentWordTextChanged()
+    {
+        createUpdateButtonIsDisabled =
+            currentWord == null || string.IsNullOrWhiteSpace(currentWord.Text);
+        await Task.CompletedTask;
+    }
 
     private bool hideWordsTable() => !allWords.Any();
     private bool hideWordFormsTable() =>
