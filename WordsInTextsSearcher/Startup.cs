@@ -73,7 +73,8 @@ namespace WordsInTextsSearcher
             services.AddScoped<IUsersRepository, UsersRepository>();
 
             services.AddRazorPages();
-            services.AddServerSideBlazor();
+            services.AddServerSideBlazor()
+                .AddCircuitOptions(options => { options.DetailedErrors = true; });
             services.AddScoped<TextRecordsService>();
             services.AddScoped<WordsService>();
             services.AddScoped<WordFormsService>();
