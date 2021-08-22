@@ -13,7 +13,7 @@ namespace TextsProc.LIba.Parsing.DumbStaff
         private readonly IEnumerable<char> _delimeters = new List<char>
         {
             ' ', ',', '.', '/', '?','!','@','\"', '#', '$','%','^', '&', '*', '(', ')', '-','_',
-            '=', '+', ';','[', ']', '\\', '|'
+            '=', '+', ';','[', ']', '\\', '|', '\r', '\n', '\t'
         };
 
         /// <summary>
@@ -54,6 +54,19 @@ namespace TextsProc.LIba.Parsing.DumbStaff
                 .Where(w=> !string.Equals(w, mainWord, StringComparison.InvariantCultureIgnoreCase))
                 .Select(x => x.ToLowerInvariant()).Distinct()
                 .Where(w => predicate(w));
+        }
+
+        public IEnumerable<string> GetWords(string input, IEnumerable<string> mainWords, int n, Func<string, bool> predicate)
+        {
+            var res = new HashSet<string>();
+            foreach (var w in mainWords)
+            {
+                var contextWOrds = GetWords(input, w, n, predicate);
+                foreach(var cw in contextWOrds)
+                    res.Add(cw);
+            }  
+
+            return res.Distinct();
         }
     }
 }

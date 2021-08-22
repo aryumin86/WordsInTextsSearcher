@@ -13,18 +13,46 @@
 <div class="row">
     <div class="col-6">
         <div class="form-group">
-            <input type="text" class="form-control" id="wordInp" @bind="mainWord"
-                   aria-describedby="help" placeholder="слово для поиска контекстов">
-            <small id="help" class="form-text text-muted">Пока можно ввести только одну словоформу.</small>
+            <textarea rows="5" id="wordInp" style="resize:none"
+                      placeholder="слова для поиска контекстов через пробел"
+                      @bind="mainWord" width="100%" class="form-control"></textarea>
         </div>
     </div>
     <div class="col-6">
-        <button class="btn btn-outline-primary" @onclick="@(async() => await ShowContexts())">
-            Показать контексты
-        </button>
-        <button class="btn btn-outline-primary" @onclick="@(async() => await ExportFios())">
-            Экспортировать контексты
-        </button>
+        <div class="row">
+            <div class="col-6">
+                <div class="form-group d-flex flex-row align-items-baseline">
+                    <label style="white-space: nowrap;" for="tagsSelect" class="mr-2">Минимальная длина слова</label>
+                    <select id="tagsSelect" class="form-control" @bind="minWordLength">
+                        @foreach (var n in Enumerable.Range(1, 10))
+                        {
+                            <option value=@n>@n</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group d-flex flex-row align-items-baseline">
+                    <label style="white-space: nowrap;" for="tagsSelect" class="mr-2">Расстояние от главного</label>
+                    <select id="tagsSelect" class="form-control" @bind="contextLeftRightRange">
+                        @foreach (var n in Enumerable.Range(1, 10))
+                        {
+                            <option value=@n>@n</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <button class="btn btn-outline-primary" @onclick="@(async() => await ShowContexts())">
+                    Показать контексты
+                </button>
+                <button class="btn btn-outline-primary" @onclick="@(async() => await ExportFios())">
+                    Экспортировать контексты
+                </button>
+            </div>
+        </div>
     </div>
     <table class="table table-striped table-hover mt-1" hidden="@(contextsDatas.Count() == 0)">
         <thead>
@@ -75,7 +103,9 @@
         var naiveWordsContextGetter = new NaiveWordsContextGetter();
         foreach (var r in textRecords)
         {
-            var names = naiveWordsContextGetter.GetWords(r.Text, mainWord, 
+            var mainWordForms = mainWord.Split(new char[] {' ', '\r', '\n', '\t'}, 
+                StringSplitOptions.RemoveEmptyEntries).Distinct();
+            var names = naiveWordsContextGetter.GetWords(r.Text, mainWordForms, 
                 contextLeftRightRange, w => w.Length >= minWordLength).Distinct();
             res.Add(new ContextData { TextRecord = r, Words = names });
         }
