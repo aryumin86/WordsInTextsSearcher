@@ -63,7 +63,10 @@ namespace WordsInTextsSearcher.Helpers
                 textTitleCell.SetCellValue(textRermsStatsArr[i].TextRecord.Title);
 
                 var textTextCell = row.CreateCell(2);
-                textTextCell.SetCellValue(textRermsStatsArr[i].TextRecord.Text);
+                textTextCell.SetCellValue(
+                    textRermsStatsArr[i].TextRecord.Text.Length > 32000
+                    ? textRermsStatsArr[i].TextRecord.Text.Substring(32000) + "......TEXT_TOO_LONG:" + textRermsStatsArr[i].TextRecord.Text.Length
+                    : textRermsStatsArr[i].TextRecord.Text);
 
                 int columnNumber = 2;
                 foreach(var word in words.ToArray())
