@@ -13,12 +13,12 @@
         <h3>Словарь</h3>
         <div class="input-group">
             <div class="input-group-prepend">
-                <button class="btn btn-outline-primary" disabled="@(createUpdateButtonIsDisabled)"
+                <button class="btn btn-outline-primary"
                         @onclick="@(async () => await CreateWord())">
                     @getCreateUpdateWordButtonText()
                 </button>
             </div>
-            <input type="text" class="form-control" @onkeyup="@(async () => await currentWordTextChanged())"
+            <input type="text" class="form-control"
                    @bind="currentWord.Text" />
             <button class="btn btn-outline-warning ml-1" @onclick="ClearWordForm">очистить</button>
         </div>
@@ -114,14 +114,6 @@
     private Word currentWord = new Word();
     private WordForm currentWordForm = new WordForm();
     private IEnumerable<Word> allWords;
-
-    private bool createUpdateButtonIsDisabled = true;
-    private async Task currentWordTextChanged()
-    {
-        createUpdateButtonIsDisabled =
-            currentWord == null || string.IsNullOrWhiteSpace(currentWord.Text);
-        await Task.CompletedTask;
-    }
 
     private bool hideWordsTable() => !allWords.Any();
     private bool hideWordFormsTable() =>
